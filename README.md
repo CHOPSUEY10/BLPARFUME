@@ -86,7 +86,7 @@ a. Buka httpd-vhost.conf tambahkan ini
 </VirtualHost>
 
 
-b. Buka C:\Windows\System32\drivers\etc\hosts (Administrator mode)
+b. Buka C:\Windows\System32\drivers\etc\hosts (Administrator mode), tambahkan
 
 127.0.0.1 blparfume.com
 
