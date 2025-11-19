@@ -10,3 +10,4 @@ use CodeIgniter\Router\RouteCollection;
 $routes->get('/', 'Home::index');
 $routes->get('belanja', 'Home::shop');
 $routes->get('keranjang', 'Home::keranjang');
+$routes->get('tentang', 'Home::tentang');

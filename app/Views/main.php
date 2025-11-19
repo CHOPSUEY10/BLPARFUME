@@ -21,7 +21,7 @@
                     <a href="<?= site_url('/') ?>" class="text-gray-700 hover:text-gray-900">Beranda</a>
                     <a href="<?= site_url('belanja') ?>" class="text-gray-700 hover:text-gray-900">Belanja</a>
                     <a href="#categories" class="text-gray-700 hover:text-gray-900">Kategori</a>
-                    <a href="#" class="text-gray-700 hover:text-gray-900">Tentang</a>
+                    <a href="<?= site_url('tentang') ?>" class="text-gray-700 hover:text-gray-900">Tentang</a>
                     <a href="#" class="text-gray-700 hover:text-gray-900">Kontak</a>
                     <a href="<?=site_url('keranjang') ?>" class="text-gray-700 hover:text-gray-900">
                         <i class="fas fa-shopping-cart"></i>

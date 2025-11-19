@@ -19,4 +19,9 @@ class Home extends BaseController
     public function keranjang(){
         return view('keranjang');
     }
+
+    public function tentang()
+    {
+        return view('tentang');
+    }
 }
