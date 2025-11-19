@@ -66,3 +66,30 @@ Additionally, make sure that the following extensions are enabled in your PHP:
 - json (enabled by default - don't turn it off)
 - [mysqlnd](http://php.net/manual/en/mysqlnd.install.php) if you plan to use MySQL
 - [libcurl](http://php.net/manual/en/curl.requirements.php) if you plan to use the HTTP\CURLRequest library
+
+
+
+
+> Konfigurasi Server Windows
+
+a. Buka httpd-vhost.conf tambahkan ini
+ 
+<VirtualHost *:80>
+    ServerName blparfume.com
+    ServerAlias www.blparfume.com
+    DocumentRoot "${INSTALL_DIR}/www/blparfume/public" 
+    <Directory "${INSTALL_DIR}/www/blparfume/public">   
+        Options +Indexes +Includes +FollowSymLinks +MultiViews
+        AllowOverride All
+        Require all granted
+    </Directory>
+</VirtualHost>
+
+
+b. Buka C:\Windows\System32\drivers\etc\hosts (Administrator mode)
+127.0.0.1 blparfume.com
+
+
+
+
+
