@@ -1,0 +1,209 @@
+/* Base styles */
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    @apply bg-gray-50 text-gray-900;
+}
+
+/* Navigation */
+.navbar {
+    @apply bg-white shadow-lg;
+}
+
+.navbar-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+.navbar-content {
+    @apply flex justify-between h-16;
+}
+
+.logo {
+    @apply text-xl font-bold text-gray-800 flex items-center;
+}
+
+.nav-links {
+    @apply hidden md:flex items-center space-x-8;
+}
+
+.nav-link {
+    @apply text-gray-700 hover:text-gray-900 transition-colors duration-200;
+}
+
+.cart-icon {
+    @apply text-gray-700 hover:text-gray-900 transition-colors duration-200;
+}
+
+/* Hero Section */
+.hero {
+    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/assets/images/hero-bg.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    @apply flex items-center justify-center text-white text-center h-[80vh];
+}
+
+.hero-content {
+    @apply px-4;
+}
+
+.hero-title {
+    @apply text-4xl md:text-6xl font-bold mb-4;
+}
+
+.hero-subtitle {
+    @apply text-xl mb-8;
+}
+
+.cta-button {
+    @apply bg-white text-gray-800 px-8 py-3 rounded-full font-semibold hover:bg-gray-100 transition duration-300 inline-block;
+}
+
+/* Products Section */
+.section-title {
+    @apply text-3xl font-bold text-center mb-12;
+}
+
+.products-grid {
+    @apply grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto;
+}
+
+.product-card {
+    @apply bg-white rounded-lg shadow-md overflow-hidden hover:transform hover:-translate-y-1 transition-transform duration-300;
+}
+
+.product-image {
+    @apply h-64 bg-gray-200 flex items-center justify-center text-gray-400;
+}
+
+.product-details {
+    @apply p-6;
+}
+
+.product-title {
+    @apply text-xl font-semibold mb-2;
+}
+
+.product-description {
+    @apply text-gray-600 mb-4;
+}
+
+.product-footer {
+    @apply flex justify-between items-center;
+}
+
+.price {
+    @apply text-lg font-bold;
+}
+
+.add-to-cart {
+    @apply bg-black text-white px-4 py-2 rounded hover:bg-gray-800 transition-colors duration-200;
+}
+
+/* Categories Section */
+.categories-section {
+    @apply py-16 bg-gray-100 px-4;
+}
+
+.categories-grid {
+    @apply grid grid-cols-2 md:grid-cols-4 gap-6 max-w-7xl mx-auto;
+}
+
+.category-card {
+    @apply bg-white rounded-lg shadow-md overflow-hidden text-center p-6 hover:shadow-lg transition-shadow duration-300;
+}
+
+.category-icon {
+    @apply text-4xl mb-4 text-gray-700;
+}
+
+.category-title {
+    @apply text-lg font-semibold mb-2;
+}
+
+/* Newsletter Section */
+.newsletter {
+    @apply py-16 px-4 bg-white;
+}
+
+.newsletter-container {
+    @apply max-w-2xl mx-auto text-center;
+}
+
+.newsletter-title {
+    @apply text-3xl font-bold mb-4;
+}
+
+.newsletter-description {
+    @apply text-gray-600 mb-8;
+}
+
+.newsletter-form {
+    @apply flex flex-col sm:flex-row gap-4 max-w-md mx-auto;
+}
+
+.newsletter-input {
+    @apply flex-grow px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent;
+}
+
+.newsletter-button {
+    @apply bg-black text-white px-6 py-2 rounded-md hover:bg-gray-800 transition-colors duration-200;
+}
+
+/* Footer */
+.footer {
+    @apply bg-gray-900 text-white py-12 px-4;
+}
+
+.footer-content {
+    @apply max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8;
+}
+
+.footer-section h3 {
+    @apply text-lg font-semibold mb-4;
+}
+
+.footer-links {
+    @apply space-y-2;
+}
+
+.footer-link {
+    @apply text-gray-400 hover:text-white transition-colors duration-200;
+}
+
+.social-links {
+    @apply flex space-x-4 mt-4;
+}
+
+.social-link {
+    @apply text-gray-400 hover:text-white transition-colors duration-200;
+}
+
+.copyright {
+    @apply text-center text-gray-500 mt-8 pt-8 border-t border-gray-800;
+}
+
+/* Responsive Navigation */
+.mobile-menu-button {
+    @apply md:hidden text-gray-500 hover:text-gray-900;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .hero-title {
+        @apply text-5xl;
+    }
+    
+    .products-grid {
+        @apply grid-cols-2;
+    }
+}
+
+@media (max-width: 640px) {
+    .products-grid {
+        @apply grid-cols-1;
+    }
+    
+    .categories-grid {
+        @apply grid-cols-2;
+    }
+}
