@@ -10,7 +10,7 @@
 </head>
 <body class="bg-gray-50">
     <!-- Navigation -->
-    <nav class="bg-white shadow-lg">
+    <nav class="bg-white shadow-xl">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
@@ -22,7 +22,7 @@
                     <a href="<?= site_url('belanja') ?>" class="text-gray-700 hover:text-gray-900">Belanja</a>
                     <a href="#categories" class="text-gray-700 hover:text-gray-900">Kategori</a>
                     <a href="<?= site_url('tentang') ?>" class="text-gray-700 hover:text-gray-900">Tentang</a>
-                    <a href="#" class="text-gray-700 hover:text-gray-900">Kontak</a>
+                    <a href="<?= site_url('kontak') ?>" class="text-gray-700 hover:text-gray-900">Kontak</a>
                     <a href="<?=site_url('keranjang') ?>" class="text-gray-700 hover:text-gray-900">
                         <i class="fas fa-shopping-cart"></i>
                     </a>
@@ -34,13 +34,13 @@
     <!-- Hero Section -->
     
     <section 
-    class="hero flex flex-col items-center justify-center text-white text-center bg-cover bg-center h-[500px] relative"
+    class="hero flex flex-col items-center justify-center text-white text-center bg-cover bg-center h-[700px] relative"
     style="background-image: url('<?= base_url('assets/images/hero-bg.png') ?>');">
     
     <div class="px-4 relative z-10">
-        <h1 class="text-4xl md:text-6xl font-bold mb-10 mt-12">Discover Your Signature Scent</h1>
+        <h1 class="text-4xl md:text-6xl font-bold mb-16 mt-6">Discover Your Signature Scent</h1>
 
-        <a href="#shop" class="bg-white text-gray-800 px-8 py-3 rounded-full font-semibold hover:bg-gray-100 transition duration-300">
+        <a href="#shop" class="bg-white text-gray-800 px-8 py-3 shadow-lg rounded-full font-semibold hover:bg-gray-100 transition duration-300">
             Belanja Sekarang
         </a>
     </div>
@@ -64,7 +64,7 @@
                         <p class="text-gray-600 mb-4">A captivating fragrance that lasts all day</p>
                         <div class="flex justify-between items-center">
                             <span class="text-lg font-bold">Rp.200.000</span>
-                            <button class="bg-black text-white px-4 py-2 rounded hover:bg-gray-800 transition">
+                            <button id="add-item" class="bg-black text-white px-4 py-2 rounded hover:bg-gray-800 transition">
                                 +
                             </button>
                         </div>

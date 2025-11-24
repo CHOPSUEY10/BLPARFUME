@@ -24,4 +24,8 @@ class Home extends BaseController
     {
         return view('tentang');
     }
+
+    public function kontak(){
+        return view('kontak');
+    }
 }

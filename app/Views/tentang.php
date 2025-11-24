@@ -68,10 +68,10 @@
                     pengembangan lini parfum khusus. Kirimkan proposal Anda atau jadwalkan sesi konsultasi virtual.
                 </p>
                 <ul class="text-gray-700 space-y-2">
-                    <li><strong>Alamat Gerai:</strong> Jl. Melati No. 45, Bandung</li>
-                    <li><strong>Jam Operasional:</strong> Senin - Sabtu, 09.00 - 18.00 WIB</li>
-                    <li><strong>Email:</strong> partnership@blparfume.id</li>
-                    <li><strong>WhatsApp:</strong> +62 831-8347-9614</li>
+                    <li><strong>Alamat Gerai :</strong> Jl. Merdeka No. 9 Tanjungpinang  </li>
+                    <li><strong>Jam Operasional :</strong> Senin - Sabtu, 09.00 - 18.00 WIB</li>
+                    <li><strong>Email :</strong> partnership@blparfume.id</li>
+                    <li><strong>WhatsApp :</strong> +62 831-8347-9614</li>
                 </ul>
             </div>
         </div>
