@@ -8,32 +8,7 @@
         <p class="text-gray-600 max-w-2xl mx-auto">Temukan beragam aroma yang menarik</p>
     </div>
 
-    <!-- Filters -->
-    <div class="mb-12">
-        <div class="flex flex-wrap justify-between items-center gap-4 mb-6">
-            <div class="flex items-center space-x-4">
-                <span class="font-medium">Filter by:</span>
-                <button class="px-4 py-2 bg-white border rounded-full hover:bg-gray-50">All</button>
-                <button class="px-4 py-2 bg-white border rounded-full hover:bg-gray-50">Men</button>
-                <button class="px-4 py-2 bg-white border rounded-full hover:bg-gray-50">Women</button>
-                <button class="px-4 py-2 bg-white border rounded-full hover:bg-gray-50">Unisex</button>
-            </div>
-            <div class="relative">
-                <select class="appearance-none bg-white border rounded-full pl-4 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-gray-300">
-                    <option>Sort by: Featured</option>
-                    <option>Price: Low to High</option>
-                    <option>Price: High to Low</option>
-                    <option>Newest Arrivals</option>
-                </select>
-                <div class="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                    </svg>
-                </div>
-            </div>
-        </div>
-    </div>
-
+   
     <!-- Products Grid -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
         <!-- Product 1 -->
@@ -50,9 +25,9 @@
                 <div class="flex justify-between items-start">
                     <div>
                         <h3 class="text-lg font-semibold text-gray-800">Dior Sauvage</h3>
-                        <p class="text-gray-500">Eau de Parfum</p>
+                        
                     </div>
-                    <span class="text-lg font-bold text-gray-900">$89.99</span>
+                    <span class="text-lg font-bold text-gray-900">Rp.200.000</span>
                 </div>
                 <button class="w-full mt-4 bg-black text-white py-2 rounded-md hover:bg-gray-800 transition-colors">
                     Add to Cart
@@ -74,9 +49,9 @@
                 <div class="flex justify-between items-start">
                     <div>
                         <h3 class="text-lg font-semibold text-gray-800">Soft Al Sosha</h3>
-                        <p class="text-gray-500">Eau de Toilette</p>
+                        
                     </div>
-                    <span class="text-lg font-bold text-gray-900">$79.99</span>
+                    <span class="text-lg font-bold text-gray-900">Rp.210.000</span>
                 </div>
                 <button class="w-full mt-4 bg-black text-white py-2 rounded-md hover:bg-gray-800 transition-colors">
                     Add to Cart
@@ -98,9 +73,9 @@
                 <div class="flex justify-between items-start">
                     <div>
                         <h3 class="text-lg font-semibold text-gray-800">Zahrat Hawaii</h3>
-                        <p class="text-gray-500">Eau de Parfum</p>
+                        
                     </div>
-                    <span class="text-lg font-bold text-gray-900">$99.99</span>
+                    <span class="text-lg font-bold text-gray-900">Rp.220.000</span>
                 </div>
                 <button class="w-full mt-4 bg-black text-white py-2 rounded-md hover:bg-gray-800 transition-colors">
                     Add to Cart

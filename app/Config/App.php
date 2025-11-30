@@ -106,6 +106,14 @@ class App extends BaseConfig
      * If false, no automatic detection will be performed.
      */
     public bool $negotiateLocale = false;
+    
+    public string $sessionDriver = 'CodeIgniter\Session\Handlers\FileHandler';
+    public string $sessionCookieName = 'ci_session';
+    public string $sessionExpiration = '7200'; // 2 jam (dalam detik)
+    public string $sessionSavePath = WRITEPATH . 'session';
+    public bool $sessionMatchIP = false;
+    public int $sessionTimeToUpdate = 300; // 5 menit
+    public bool $sessionRegenerateDestroy = false;
 
     /**
      * --------------------------------------------------------------------------

@@ -7,6 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="/assets/css/style.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@2.8.2/dist/alpine.js" defer></script>
 </head>
 <body class="bg-gray-50">
     <!-- Navigation -->
@@ -20,7 +21,6 @@
                 <div class="hidden md:flex items-center space-x-8">
                     <a href="<?= site_url('/') ?>" class="text-gray-700 hover:text-gray-900">Beranda</a>
                     <a href="<?= site_url('belanja') ?>" class="text-gray-700 hover:text-gray-900">Belanja</a>
-                    <a href="#categories" class="text-gray-700 hover:text-gray-900">Kategori</a>
                     <a href="<?= site_url('tentang') ?>" class="text-gray-700 hover:text-gray-900">Tentang</a>
                     <a href="<?= site_url('kontak') ?>" class="text-gray-700 hover:text-gray-900">Kontak</a>
                     <a href="<?=site_url('keranjang') ?>" class="text-gray-700 hover:text-gray-900">
@@ -64,7 +64,7 @@
                         <p class="text-gray-600 mb-4">A captivating fragrance that lasts all day</p>
                         <div class="flex justify-between items-center">
                             <span class="text-lg font-bold">Rp.200.000</span>
-                            <button id="add-item" class="bg-black text-white px-4 py-2 rounded hover:bg-gray-800 transition">
+                            <button class=" add-item bg-black text-white px-4 py-2 rounded hover:bg-gray-800 transition">
                                 +
                             </button>
                         </div>
@@ -80,7 +80,7 @@
                         <p class="text-gray-600 mb-4">A delicate bouquet of fresh flowers</p>
                         <div class="flex justify-between items-center">
                             <span class="text-lg font-bold">Rp.210.000</span>
-                            <button class="bg-black text-white px-4 py-2 rounded hover:bg-gray-800 transition">
+                            <button class=" add-item bg-black text-white px-4 py-2 rounded hover:bg-gray-800 transition">
                                 +
                             </button>
                         </div>
@@ -96,12 +96,14 @@
                         <p class="text-gray-600 mb-4">Rich and mysterious oriental scent</p>
                         <div class="flex justify-between items-center">
                             <span class="text-lg font-bold">Rp.230.000</span>
-                            <button class="bg-black text-white px-4 py-2 rounded hover:bg-gray-800 transition">
+                            <button class="add-item  bg-black text-white px-4 py-2 rounded hover:bg-gray-800 transition">
                                 +
                             </button>
                         </div>
                     </div>
                 </div>
+                <script> BASE_URL="<?=base_url()?>" </script>
+                <scripts src="<?= base_url("assets/js/main.js") ?>">  </scripts>
             </div>
         </div>
     </section>
@@ -120,7 +122,6 @@
                     <li><a href="#" class="text-gray-400 hover:text-white">Seluruh Produk</a></li>
                     <li><a href="#" class="text-gray-400 hover:text-white">Produk Terkini</a></li>
                     <li><a href="#" class="text-gray-400 hover:text-white">Produk Terlaris</a></li>
-                    <li><a href="#" class="text-gray-400 hover:text-white">Penawaran Spesial</a></li>
                 </ul>
             </div>
             <div>
@@ -144,6 +145,6 @@
         </div>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@2.8.2/dist/alpine.js" defer></script>
+
 </body>
 </html>
