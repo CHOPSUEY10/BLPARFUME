@@ -7,11 +7,14 @@ use CodeIgniter\Model;
 class BasketModel extends Model
 {
     protected $table            = 'baskets';
-    protected $primaryKey       = 'id';
+    protected $primaryKey       = 'basket_id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
-    protected $allowedFields    = ['user_id', 'product_id', 'product_name', 'product_price'];
+    protected $allowedFields    = ['user_id', 'product_id'];
     protected $useTimestamps    = true;
+    protected $createdField     = 'item_added';
+    protected $updatedField     = 'item_updated';
+
 
     /**
      * Menambahkan item ke keranjang

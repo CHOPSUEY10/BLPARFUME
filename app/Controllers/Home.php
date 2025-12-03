@@ -7,11 +7,11 @@ class Home extends BaseController
     public function index()
     {  
     
-        // $logged_in = session()->get('user_id');
+        $logged_in = session()->get('user_id');
 
-        // if(!$logged_in){
-        //     return redirect()->to('login');
-        // }
+        if(!$logged_in){
+            return redirect()->to('login');
+        }
 
         $data = [
             'meta' => ['title' => 'Bl Parfume'],

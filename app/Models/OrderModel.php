@@ -7,11 +7,12 @@ use CodeIgniter\Model;
 class OrderModel extends Model
 {
     protected $table            = 'orders';
-    protected $primaryKey       = 'id';
-    protected $useAutoIncrement = true;
+    protected $primaryKey       = 'order_id';
     protected $returnType       = 'array';
-    protected $allowedFields    = ['user_id', 'total_amount', 'items_count', 'status'];
+    protected $allowedFields    = ['user_id', 'total_price', 'items_count', 'status'];
+    protected $useAutoIncrement = true;
     protected $useTimestamps    = true;
+    protected $createdField     = 'tanggal_transaksi';
 
     /**
      * Membuat Order baru berdasarkan data dari BasketSummary

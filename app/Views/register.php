@@ -43,19 +43,7 @@
 
             <form action="<?= site_url('register') ?>" method="post" class="mt-8 space-y-6">
                 <?= csrf_field() ?>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label for="username" class="block text-sm font-medium text-gray-700 mb-2">Username *</label>
-                        <input
-                            type="text"
-                            id="username"
-                            name="username"
-                            value="<?= old('username') ?>"
-                            required
-                            class="w-full rounded-2xl border border-gray-200 bg-gray-50/80 py-3 px-4 text-gray-900 focus:border-gray-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-gray-800/20"
-                            placeholder="blparfume_lover"
-                        >
-                    </div>
+                <div>
                     <div>
                         <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email *</label>
                         <input
@@ -71,16 +59,29 @@
                 </div>
 
                 <div>
-                    <label for="fullname" class="block text-sm font-medium text-gray-700 mb-2">Nama Lengkap</label>
+                    <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Nama Lengkap</label>
                     <input
                         type="text"
-                        id="fullname"
-                        name="fullname"
-                        value="<?= old('fullname') ?>"
+                        id="name"
+                        name="name"
+                        value="<?= old('name') ?>"
                         class="w-full rounded-2xl border border-gray-200 bg-gray-50/80 py-3 px-4 text-gray-900 focus:border-gray-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-gray-800/20"
                         placeholder="Nama lengkap sesuai identitas"
                     >
                 </div>
+
+                <div>
+                    <label for="address" class="block text-sm font-medium text-gray-700 mb-2">Alamat</label>
+                    <input
+                        type="text"
+                        id="address"
+                        name="address"
+                        value="<?= old('address') ?>"
+                        class="w-full rounded-2xl border border-gray-200 bg-gray-50/80 py-3 px-4 text-gray-900 focus:border-gray-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-gray-800/20"
+                        placeholder="Alamat lengkap sesuai domisili"
+                    >
+                </div>
+
 
                 <div>
                     <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">Nomor Telepon</label>

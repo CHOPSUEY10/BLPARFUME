@@ -20,46 +20,54 @@ class Auth extends Controller
             case 'POST':
                 $rules = [
                     'email'    => 'required|valid_email',
-                    'password' => 'required|min_length[6]',
+                    'password' => 'required|min_length[6]|max_length[256]',
                 ];
 
                 if (!$this->validate($rules)) {
                     return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
                 }
 
-                $email = $this->request->getPost('email');
-                $password = $this->request->getPost('password');
+                $email = trim($this->request->getPost('email'));
+                $password = trim($this->request->getPost('password'));
+                // echo($email . $password);
+              
+                try {
+                    
+                    $user = $this->userModel->getUserIdByEmail($email);
+                    
+                    // 1. Cek apakah user ditemukan DAN password cocok
+                    if ($user && password_verify($password, $user['password'])) {
+                        
+                        // LOGIN BERHASIL
+                        $sessionData = [
+                            'user_id'   => $user['id_user'],
+                            'email'     => $user['email'],
+                            'logged_in' => true,
+                        ];
+                        
+                        session()->set($sessionData);
+                        
+                        return redirect()->to('tentang')->with('success','Berhasil login');
 
-            // Medapatkan id user berdasarkan input email
-
-                $user = $this->userModel->getUserIdByEmail($email);
-                if ($user && password_verify($password, $user['password'])) {
+                    }
                     
-                    // ✅ Simpan session setelah login berhasil
-                    $sessionData = [
-                        'user_id'    => $user['id'],
-                        'username'   => $user['username'],
-                        'email'      => $user['email'],
-                        'role'       => $user['role'] ?? 'customer',
-                        'logged_in'  => true,
-                    ];
                     
-                    session()->set($sessionData);
+                } catch (\Exception $e) {
+    
+                    // HANYA UNTUK ERROR DATABASE/SISTEM (EXCEPTION)
+                    log_message('error', 'Database Error during login: ' . $e->getMessage());
                     
-                    // Atau bisa satu-satu
-                    // session()->set('user_id', $user['id']);
-                    // session()->set('username', $user['username']);
-                    // session()->set('logged_in', true);
-                    
-                    return redirect()->to('/dashboard')->with('success', 'Login berhasil!');
-                    
-                } else {
-                    return redirect()->back()->with('error', 'Email atau password salah!');
+                    // Redirect dengan pesan yang lebih umum
+                    return redirect()->back()->with('error','Password atau Email salah');
                 }
+                return redirect()->back()->with('error','User tidak ditemukan');
+
+                                
             break;
             default:
                 return view('login');
         }
+                
     }
 
     public function logout()
@@ -87,15 +95,6 @@ class Auth extends Controller
 
             case 'POST' : 
                 $rules = [
-                    'username' => [
-                        'rules'  => 'required|min_length[3]|max_length[50]|is_unique[users.username]',
-                        'errors' => [
-                            'required'    => 'Username wajib diisi',
-                            'min_length'  => 'Username minimal 3 karakter',
-                            'max_length'  => 'Username maksimal 50 karakter',
-                            'is_unique'   => 'Username sudah digunakan',
-                        ]
-                    ],
                     'email' => [
                         'rules'  => 'required|valid_email|is_unique[users.email]',
                         'errors' => [
@@ -118,10 +117,16 @@ class Auth extends Controller
                             'matches'  => 'Konfirmasi password tidak cocok',
                         ]
                     ],
-                    'fullname' => [
+                    'name' => [
                         'rules'  => 'permit_empty|max_length[100]',
                         'errors' => [
                             'max_length' => 'Nama lengkap maksimal 100 karakter',
+                        ]
+                    ],
+                    'address' => [
+                        'rules'  => 'max_length[150]',
+                        'errors' => [
+                            'max_length' => 'Alamat Maksimal 150 karakter',
                         ]
                     ],
                     'phone' => [
@@ -142,58 +147,54 @@ class Auth extends Controller
                 }
 
                 // Get form data
-                $username = $this->request->getPost('username');
-                $email = $this->request->getPost('email');
-                $password = $this->request->getPost('password');
-                $fullname = $this->request->getPost('fullname');
-                $phone = $this->request->getPost('phone');
+                
+                $name = trim($this->request->getPost('name'));
+                $email = trim($this->request->getPost('email'));
+                $password = trim($this->request->getPost('password'));
+                $phone = trim($this->request->getPost('phone'));
+                $address = trim($this->request->getPost('address'));
+
+               
+                $encodedIdentity = bin2hex(random_bytes(16));
 
                 // Prepare data
                 $userData = [
-                    'username'   => $username,
+                    'id_user'    => $encodedIdentity,
                     'email'      => $email,
                     'password'   => password_hash($password, PASSWORD_DEFAULT), // Hash password
-                    'fullname'   => $fullname ?? '',
+                    'fullname'   => $name ?? '',
                     'phone'      => $phone ?? '',
-                    'role'       => 'customer', // Default role
-                    'is_active'  => 1, // Active by default
-                    'created_at' => date('Y-m-d H:i:s'),
+                    'address'    => $address ?? '',
                 ];
 
                 // Save to database
                 try{
                     $userId = $this->userModel->insertNewUser($userData);
-
-                    if (!$userId) {
-                        // If insert failed
-                        return redirect()->back()
-                                    ->withInput()
-                                    ->with('error', 'Gagal mendaftar. Silakan coba lagi.');
-                    }
-
-                    // ✅ Auto login setelah register berhasil
-                    $sessionData = [
-                        'user_id'    => $userId,
-                        'username'   => $username,
-                        'email'      => $email,
-                        'logged_in'  => true,
-                    ];
+                    log_message('debug', $userId);
                     
-                    session()->set($sessionData);
+                        
+                        // ✅ Auto login setelah register berhasil
+                        $sessionData = [
+                            'user_id'   => $encodedIdentity,
+                            'email'      => $email,
+                            'logged_in'  => true,
+                        ];
+                        
+                        session()->set($sessionData);
+                        
+                        // Redirect to dashboard with success message
+                        return redirect()->to('/')
+                                ->with('success', 'Registrasi berhasil! Selamat datang, ' . $name);
 
-                    // Redirect to dashboard with success message
-                    return redirect()->to('/dashboard')
-                                ->with('success', 'Registrasi berhasil! Selamat datang, ' . $username);
+
                 }catch(Exception $e){
-                    return redirect()->back()
-                                ->withInput()
-                                ->with('error', 'Gagal mendaftar. Silakan coba lagi.');
+                    return redirect()->back()->with('error', 'Gagal mendaftar. Silakan coba lagi.');
                 }
             break;
             default : 
                  
                 return view('register');
-            break;
+            
         }
 
     }
