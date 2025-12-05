@@ -207,3 +207,23 @@ body {
         @apply grid-cols-2;
     }
 }
+
+.toast {
+    position: fixed;
+    bottom: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 12px 20px;
+    background: #333;
+    color: white;
+    border-radius: 6px;
+    opacity: 0;
+    transition: 0.3s;
+}
+.toast.show {
+    opacity: 1;
+}
+.toast.success {
+    background: #28a745;
+}
+

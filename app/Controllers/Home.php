@@ -1,6 +1,9 @@
 <?php
 
 namespace App\Controllers;
+use App\Models\OrderModel;
+use App\Models\ShippingModel;
+use App\Models\ProductModel;
 
 class Home extends BaseController
 {
@@ -20,11 +23,12 @@ class Home extends BaseController
         return view('main', $data);
     }
 
+
+    
+   
     public function shop()
     {
-
         return view('shop');
-
     }
 
     public function keranjang(){
@@ -39,4 +43,11 @@ class Home extends BaseController
     public function kontak(){
         return view('kontak');
     }
+
+    
+
+
+  
+    
+
 }

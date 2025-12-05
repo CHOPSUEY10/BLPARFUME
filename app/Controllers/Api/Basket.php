@@ -18,7 +18,7 @@ use App\Models\OrderModel;
 // lalu buatkan kolom nama_produk, total_harga
     
 
-class BasketApiController extends ResourceController
+class Basket extends ResourceController
 {
 
     protected $format    = 'json';  

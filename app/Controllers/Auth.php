@@ -11,6 +11,7 @@ class Auth extends Controller
         $this->userModel = new UserModel();
     }
 
+    
 
     public function login()
     {

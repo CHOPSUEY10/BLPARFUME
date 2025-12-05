@@ -24,6 +24,7 @@
                     <a href="<?= site_url('belanja') ?>" class="text-gray-700 hover:text-gray-900">Belanja</a>
                     <a href="<?= site_url('tentang') ?>" class="text-gray-700 hover:text-gray-900">Tentang</a>
                     <a href="<?= site_url('kontak') ?>" class="text-gray-700 hover:text-gray-900">Kontak</a>
+                    <a  href="javascript:void(0)" onclick="tokenCheck()"  class="text-gray-700 hover:text-gray-900">Admin</a>
                     
                     
                     <?php if (session()->get('user_id')) : ?>
@@ -110,8 +111,8 @@
                         </div>
                     </div>
                 </div>
-                <script> BASE_URL="<?=base_url()?>" </script>
-                <scripts src="<?= base_url("assets/js/main.js") ?>">  </scripts>
+                <script> const BASE_URL="<?=base_url()?>" </script>
+                <script src="<?= base_url("assets/js/main.js") ?>">  </script>
             </div>
         </div>
     </section>

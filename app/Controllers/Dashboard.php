@@ -2,7 +2,7 @@
 
 namespace App\Controllers;
 
-class DashboardController extends BaseController
+class Dashboard extends BaseController
 {
     public function index()
     {
@@ -30,4 +30,40 @@ class DashboardController extends BaseController
         
         return view('dashboard', $data);
     }
+
+     public function adminlogin(){
+        return view('admin/adminlogin');
+    }
+
+    public function adminregister(){
+        return view('admin/adminregister');
+    }
+
+    public function admin(){
+        return view('admin/admindashboard');
+    }
+
+     public function adminpesanan(){
+         return view('admin/adminpesanan');
+     
+    }
+        
+    public function admintransaksi(){
+            
+        return view('admin/admintransaksi');
+    }
+    
+    public function adminkeuangan(){
+
+        return view('admin/adminkeuangan');
+        
+    }
+    
+    public function adminproduk(){
+        
+        return view('admin/adminproduk');
+    
+    }
+
+
 }

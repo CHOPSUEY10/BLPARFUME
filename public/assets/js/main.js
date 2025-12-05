@@ -55,9 +55,75 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
     });
     
-
-
-
-
 });
     
+
+async function tokenCheck(){
+    
+    const token = localStorage.getItem('token');
+    const token_exp = localStorage.getItem('token_expires');
+    
+
+    
+    
+    const url = `${BASE_URL}/admin`
+    const method = 'GET'
+    try{ 
+
+        const req = await fetch(url,{
+            method:method,
+            headers: {
+                'Authorization' : 'Bearer '+token,
+                'Content-Type'  : 'application/json'
+            }
+        })
+
+        console.log(req.status)
+        if(!req.ok){
+            showToast('Sesi telah habis. Silahkan login kembali', false)
+            localStorage.removeItem('token'); 
+            setTimeout(()=>{
+                window.location.href = '/admin/login';
+            },3000);
+            return;
+        }
+        
+        const res = await req.json();
+        
+        if(res.error){
+            localStorage.removeItem('token'); 
+            console.log(res.message);
+            return
+        }
+
+        
+        window.location.href = res.redirect
+
+    }catch(err){
+        
+        console.error(`error message ${err}`);
+
+    }
+}
+
+
+
+
+function showToast(msg, success = false) {
+    let t = document.getElementById("toast-notif");
+    if (!t) {
+        t = document.createElement("div");
+        t.id = "toast-notif";
+        t.className = "toast";
+        document.body.appendChild(t);
+    }
+
+    t.innerText = msg;
+
+    t.classList.remove("success");
+    if (success) t.classList.add("success");
+
+    t.classList.add("show");
+    setTimeout(() => t.classList.remove("show"), 2000);
+}
+

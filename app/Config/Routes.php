@@ -24,25 +24,49 @@ $routes->get('kontak', 'Home::kontak');
 
 // API Routes 
 $routes->group('basket/api', function($routes) {
-    $routes->post('add', 'Api\BasketApi::add');
-    $routes->post('delete', 'Api\BasketApi::removeItem');
-    $routes->post('purchase', 'Api\BasketApi::purchase');
+    $routes->post('add', 'Api\Basket::add');
+    $routes->post('delete', 'Api\Basket::removeItem');
+    $routes->post('purchase', 'Api\Basket::purchase');
     
     // Optional: GET methods
-    $routes->get('list', 'Api\BasketApi::list');
-    $routes->get('total', 'Api\BasketApi::total');
+    $routes->get('list', 'Api\Basket::list');
+    $routes->get('total', 'Api\Basket::total');
 });
 
-// Admin Routes dengan filter X-Signature
-$routes->group('admin/api', function($routes) {
-    $routes->get('login'.'Api\AdminAuth::login');
-    $routes->post('login'.'Api\AdminAuth::login');
-    
-    $routes->get('register'.'Api\AdminAuth::register');
-    $routes->post('register'.'Api\AdminAuth::register');
-    
-    
-    $routes->get('logout'.'Api\AdminAuth::logout');
 
 
+// Admin routes untuk autentikasi 
+$routes->group('admin', function($routes) {
+    
+    $routes->post('login','Api\AdminAuth::login');
+    $routes->get('login','Dashboard::adminlogin');
+    
+    $routes->post('register','Api\AdminAuth::register');
+    $routes->get('register','Dashboard::adminregister');
+    
+    $routes->get('logout','Api\AdminAuth::logout'); 
+
+
+    
+    
+    $routes->get('dashboard','Dashboard::admin');
+    $routes->get('order/view','Dashboard::adminpesanan');
+    $routes->get('transaction/view','Dashboard::admintransaksi');
+    $routes->get('finance/view','Dashboard::adminkeuangan');
+    $routes->get('product/view','Dashboard::adminproduk');
+    
+    
+});
+
+// $routes->get('admin','Home::admin');
+// Admin Routes dengan filter JWT
+$routes->group('admin', ['filter' => 'jwt'], function($routes) {
+    
+    $routes->get('/','Api\Dashboard::admin');
+    $routes->get('order','Api\Dashboard::adminpesanan');
+    $routes->get('transaction','Api\Dashboard::admintransaksi');
+    $routes->get('finance','Api\Dashboard::adminkeuangan');
+    $routes->get('product','Api\Dashboard::adminproduk');
+
+    
 });
