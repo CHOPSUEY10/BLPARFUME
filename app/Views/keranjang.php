@@ -4,129 +4,250 @@
 <div class="container mx-auto px-4 py-12">
     <h1 class="text-3xl font-bold text-gray-800 mb-8">Keranjang Belanja</h1>
     
-    <div class="flex flex-col lg:flex-row gap-8">
-        <!-- Cart Items -->
-        <div class="lg:w-2/3">
-            <!-- Cart Header -->
-            <div class="hidden md:grid grid-cols-12 gap-4 bg-gray-100 p-4 rounded-t-lg">
-                <div class="col-span-5 font-medium text-gray-600">Produk</div>
-                <div class="col-span-2 font-medium text-gray-600 text-center">Harga</div>
-                <div class="col-span-2 font-medium text-gray-600 text-center">Jumlah</div>
-                <div class="col-span-2 font-medium text-gray-600 text-center">Subtotal</div>
-                <div class="col-span-1"></div>
-            </div>
+    <?php 
+        $items = $summary['items'] ?? [];
+        $total = $summary['total'] ?? 0;
+        $count = $summary['count'] ?? 0;
+    ?>
 
-            <!-- Cart Item 1 -->
-            <div class="border-b border-gray-200 py-6">
-                <div class="flex flex-col md:grid md:grid-cols-12 gap-4 items-center">
-                    <div class="col-span-5 flex items-center space-x-4">
-                        <img src="<?= base_url('assets/images/parfume-1.jpg') ?>" alt="Dior Sauvage" class="w-20 h-20 object-cover rounded">
-                        <div>
-                            <h3 class="font-medium text-gray-800">Dior Sauvage</h3>
-                            <!-- <p class="text-sm text-gray-500">Eau de Parfum</p> -->
-                        </div>
-                    </div>
-                    <div class="col-span-2 text-center">
-                        <span class="text-gray-800">Rp.200.000</span>
-                    </div>
-                    <div class="col-span-2">
-                        <div class="flex items-center justify-center space-x-2">
-                            <button class="w-8 h-8 flex items-center justify-center border rounded-full hover:bg-gray-100">-</button>
-                            <span class="w-10 text-center">1</span>
-                            <button class="w-8 h-8 flex items-center justify-center border rounded-full hover:bg-gray-100">+</button>
-                        </div>
-                    </div>
-                    <div class="col-span-2 text-center font-medium">
-                        Rp.200.000
-                    </div>
-                    <div class="col-span-1 flex justify-end">
-                        <button class="text-gray-400 hover:text-red-500">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                        </button>
-                    </div>
-                </div>
+    <?php if(empty($items)): ?>
+        <div class="text-center py-16 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
+            <div class="text-gray-300 mb-4">
+                <i class="fas fa-shopping-basket text-6xl"></i>
             </div>
-
-            <!-- Cart Item 2 -->
-            <div class="border-b border-gray-200 py-6">
-                <div class="flex flex-col md:grid md:grid-cols-12 gap-4 items-center">
-                    <div class="col-span-5 flex items-center space-x-4">
-                        <img src="<?= base_url('assets/images/parfume-2.jpg') ?>" alt="Soft Al Sosha" class="w-20 h-20 object-cover rounded">
-                        <div>
-                            <h3 class="font-medium text-gray-800">Soft Al Sosha</h3>
-                            <!-- <p class="text-sm text-gray-500">Eau de Toilette</p> -->
-                        </div>
-                    </div>
-                    <div class="col-span-2 text-center">
-                        <span class="text-gray-800">Rp.210.000</span>
-                    </div>
-                    <div class="col-span-2">
-                        <div class="flex items-center justify-center space-x-2">
-                            <button class="w-8 h-8 flex items-center justify-center border rounded-full hover:bg-gray-100">-</button>
-                            <span class="w-10 text-center">1</span>
-                            <button class="w-8 h-8 flex items-center justify-center border rounded-full hover:bg-gray-100">+</button>
-                        </div>
-                    </div>
-                    <div class="col-span-2 text-center font-medium">
-                        Rp.210.000
-                    </div>
-                    <div class="col-span-1 flex justify-end">
-                        <button class="text-gray-400 hover:text-red-500">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Continue Shopping Button -->
-            <div class="mt-8">
-                <a href="<?= site_url('belanja') ?>" class="flex items-center text-blue-600 hover:text-blue-800">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                    </svg>
-                    Lanjutkan Belanja
-                </a>
-            </div>
+            <h3 class="text-xl font-medium text-gray-900 mb-2">Keranjang Anda kosong</h3>
+            <p class="text-gray-500 mb-6">Yuk isi dengan parfum favoritmu!</p>
+            <a href="<?= site_url('belanja') ?>" class="inline-flex items-center bg-black text-white px-8 py-3 rounded-full font-semibold hover:bg-gray-800 transition shadow-lg">
+                <i class="fas fa-arrow-left mr-2"></i> Mulai Belanja
+            </a>
         </div>
 
-        <!-- Order Summary -->
-        <div class="lg:w-1/3">
-            <div class="bg-gray-50 p-6 rounded-lg">
-                <h2 class="text-xl font-semibold mb-6">Ringkasan Pesanan</h2>
-                
-                <div class="space-y-4">
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Subtotal</span>
-                        <span>$169.98</span>
+    <?php else: ?>
+        <div class="flex flex-col lg:flex-row gap-8">
+            
+            <div class="lg:w-2/3">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="hidden md:grid grid-cols-12 gap-4 bg-gray-50 p-4 text-sm font-bold text-gray-600 border-b">
+                        <div class="col-span-6">Produk</div>
+                        <div class="col-span-2 text-center">Harga</div>
+                        <div class="col-span-2 text-center">Jml</div>
+                        <div class="col-span-2 text-center">Subtotal</div>
                     </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Ongkos Kirim</span>
-                        <span class="text-green-600">Gratis</span>
-                    </div>
-                    <div class="border-t border-gray-200 pt-4 mt-4">
-                        <div class="flex justify-between font-semibold text-lg">
-                            <span>Total</span>
-                            <span>$169.98</span>
+
+                    <?php foreach($items as $item): ?>
+                        <?php 
+                            $imgNum = ($item['product_id'] % 3) + 1; 
+                        ?>
+                        <div class="flex flex-col md:grid md:grid-cols-12 gap-4 p-6 items-center border-b border-gray-100 last:border-0 hover:bg-gray-50 transition">
+                            <div class="col-span-6 flex items-center w-full space-x-4">
+                                <button class="text-gray-400 hover:text-red-500 transition btn-delete p-2" 
+                                        data-product-id="<?= $item['product_id'] ?>" 
+                                        title="Hapus Produk">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+
+                                <div class="w-20 h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 border border-gray-200">
+                                    <img src="<?= base_url('assets/images/parfume-' . $imgNum . '.jpg') ?>" 
+                                         alt="<?= esc($item['product_name']) ?>" 
+                                         class="w-full h-full object-cover">
+                                </div>
+                                
+                                <div>
+                                    <h4 class="font-bold text-gray-900 text-lg"><?= esc($item['product_name']) ?></h4>
+                                    <span class="inline-block px-2 py-1 bg-gray-100 text-xs rounded text-gray-500 mt-1">
+                                        Size: <?= esc($item['product_size']) ?>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="col-span-2 text-center w-full md:w-auto">
+                                <span class="md:hidden text-gray-500 text-sm mr-2">Harga:</span>
+                                <span class="text-gray-700">Rp<?= number_format($item['product_price'], 0, ',', '.') ?></span>
+                            </div>
+
+                            <div class="col-span-2 text-center w-full md:w-auto flex justify-center items-center gap-3">
+                                <span class="md:hidden text-gray-500 text-sm mr-2">Jml:</span>
+                                <button class="w-8 h-8 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center font-bold text-gray-700 transition btn-update"
+                                        data-product-id="<?= $item['product_id'] ?>" 
+                                        data-action="decrease"
+                                        <?= $item['quantity'] <= 1 ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : '' ?>>
+                                    -
+                                </button>
+                                <span class="w-8 text-center font-bold text-lg"><?= esc($item['quantity']) ?></span>
+                                <button class="w-8 h-8 rounded-full bg-black hover:bg-gray-800 flex items-center justify-center font-bold text-white transition btn-update"
+                                        data-product-id="<?= $item['product_id'] ?>" 
+                                        data-action="increase">
+                                    +
+                                </button>
+                            </div>
+
+                            <div class="col-span-2 text-center w-full md:w-auto font-bold text-gray-900">
+                                <span class="md:hidden text-gray-500 text-sm mr-2 font-normal">Subtotal:</span>
+                                Rp<?= number_format($item['subtotal'], 0, ',', '.') ?>
+                            </div>
                         </div>
+                    <?php endforeach; ?>
+
+                    <div class="p-4 bg-gray-50">
+                        <a href="<?= site_url('belanja') ?>" class="text-sm text-gray-600 hover:text-black font-medium flex items-center">
+                            <i class="fas fa-long-arrow-alt-left mr-2"></i> Tambah parfum lainnya
+                        </a>
                     </div>
                 </div>
+            </div>
 
-                <!-- Checkout Button -->
-                <button class="w-full mt-6 bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition-colors flex items-center justify-center space-x-2">
-                    <a href="https://wa.me/+6283183479614">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.417-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.293-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.964-.941 1.162-.173.198-.349.223-.646.074-.299-.149-1.263-.465-2.403-1.485-.888-.795-1.484-1.761-1.66-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.611-.912-2.207-.242-.579-.487-.5-.669-.508-.172-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.095 3.2 5.076 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-8.535 7.543h-.016l1.337-.372c-.213-.608-.427-1.216-.647-1.818 1.045.326 2.114.482 3.166.506.007.2.016.398.016.598a12.7 12.7 0 0 1-3.872-1.11c.2.603.407 1.203.612 1.797l.404 1.001z"/>
-                    </svg>
-                </button>
+            <div class="lg:w-1/3">
+                <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100 sticky top-24">
+                    <h2 class="text-xl font-bold text-gray-900 mb-6">Ringkasan Pesanan</h2>
+                    
+                    <div class="space-y-4 mb-6">
+                        <div class="flex justify-between text-gray-600">
+                            <span>Total Item</span>
+                            <span class="font-medium"><?= $count ?> pcs</span>
+                        </div>
+                        <div class="flex justify-between text-gray-600">
+                            <span>Ongkos Kirim</span>
+                            <span class="text-green-600 font-bold">Gratis</span>
+                        </div>
+                        <div class="border-t border-dashed border-gray-200 pt-4 mt-4">
+                            <div class="flex justify-between items-end">
+                                <span class="text-gray-900 font-bold">Total Bayar</span>
+                                <span class="text-2xl font-bold text-gray-900">Rp<?= number_format($total, 0, ',', '.') ?></span>
+                            </div>
+                            <p class="text-xs text-gray-400 mt-1 text-right">Termasuk pajak</p>
+                        </div>
+                    </div>
 
-                <!-- Payment Methods -->
-                
+                    <?php 
+                        $waText = "Halo Admin BL Parfume, saya ingin memesan:%0a%0a";
+                        foreach($items as $i) {
+                            $waText .= "▪️ " . $i['product_name'] . " (" . $i['quantity'] . "x) - " . $i['product_size'] . "%0a";
+                        }
+                        $waText .= "%0a💰 *Total: Rp" . number_format($total, 0, ',', '.') . "*";
+                        $waText .= "%0a%0aMohon info pembayaran selanjutnya. Terima kasih.";
+                    ?>
+
+                    <button onclick="checkoutProcess()" 
+                       class="flex items-center justify-center w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-xl shadow-lg transition transform hover:-translate-y-1 mt-6 cursor-pointer">
+                        <svg class="w-6 h-6 mr-2 fill-current" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+                        <span>Checkout via WhatsApp</span>
+                    </button>
+                    
+                    <p class="text-xs text-center text-gray-400 mt-4">
+                        <i class="fas fa-lock mr-1"></i> Transaksi Anda aman & terenkripsi
+                    </p>
+                </div>
             </div>
         </div>
-    </div>
+    <?php endif; ?>
 </div>
+
+<script>
+    // Token CSRF Global
+    const csrfName = '<?= csrf_token() ?>';
+    let csrfHash   = '<?= csrf_hash() ?>'; 
+
+    document.addEventListener('DOMContentLoaded', function() {
+        
+        async function updateCart(url, payload) {
+            try {
+                payload[csrfName] = csrfHash;
+
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': csrfHash
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                if (result.token) csrfHash = result.token;
+
+                if (response.ok && result.success) {
+                    location.reload(); 
+                } else {
+                    alert('Gagal: ' + (result.message || 'Terjadi kesalahan'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan koneksi.');
+            }
+        }
+
+        document.querySelectorAll('.btn-update').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const productId = this.getAttribute('data-product-id');
+                const action = this.getAttribute('data-action');
+                this.style.opacity = '0.5';
+                updateCart('<?= site_url('cart/update') ?>', {
+                    product_id: productId,
+                    action: action
+                });
+            });
+        });
+
+        document.querySelectorAll('.btn-delete').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if(!confirm('Yakin ingin menghapus produk ini dari keranjang?')) return;
+                const productId = this.getAttribute('data-product-id');
+                updateCart('<?= site_url('cart/delete') ?>', {
+                    product_id: productId
+                });
+            });
+        });
+    });
+
+    // FUNGSI CHECKOUT
+    async function checkoutProcess() {
+        const btn = document.querySelector('button[onclick="checkoutProcess()"]');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Memproses...';
+        btn.disabled = true;
+
+        try {
+            // 1. Simpan Order ke Database
+            const response = await fetch('<?= site_url('cart/checkout') ?>', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': csrfHash
+                },
+                body: JSON.stringify({ [csrfName]: csrfHash })
+            });
+
+            const result = await response.json();
+            if(result.token) csrfHash = result.token;
+
+            if (result.success) {
+                // 2. Buka WhatsApp
+                const phone = "6283148796357";
+                const waText = `<?= $waText ?>`; // Ambil text PHP
+                
+                // Tambahkan ID Order ke pesan WA
+                const finalWaText = `${waText}%0a%0a*Order ID: #${result.order_id}*`;
+                const url = `https://wa.me/${phone}?text=${finalWaText}`;
+                
+                window.open(url, '_blank');
+                
+                // Redirect ke Halaman Riwayat
+                window.location.href = '<?= site_url('riwayat') ?>';
+            } else {
+                alert('Gagal checkout: ' + result.message);
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+
+        } catch (error) {
+            console.error(error);
+            alert('Terjadi kesalahan koneksi');
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+    }
+</script>
 <?= $this->endSection() ?>

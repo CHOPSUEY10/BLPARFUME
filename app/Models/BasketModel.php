@@ -15,77 +15,58 @@ class BasketModel extends Model
     protected $createdField     = 'item_added';
     protected $updatedField     = 'item_updated';
 
-
-    /**
-     * Menambahkan item ke keranjang
-     */
     public function addItemToBasket($userId, $data)
     {
-        // Pastikan user_id masuk ke data insert
         $data['user_id'] = $userId;
         return $this->insert($data);
     }
 
-    /**
-     * Menghapus 1 item dari keranjang berdasarkan product_id
-     * Kita cari 1 baris saja yang cocok, lalu hapus.
-     */
-    public function removeItemFromBasket($productId, $userId)
-    {
-        // Cari item pertama yang cocok dengan produk dan user
-        $item = $this->where('user_id', $userId)
-                     ->where('product_id', $productId)
-                     ->first();
-
-        if ($item) {
-            // Hapus berdasarkan ID unik baris tersebut
-            return $this->delete($item['id']);
-        }
-
-        return false;
-    }
-
-    /**
-     * Cek apakah keranjang kosong
-     */
-    public function isBasketEmpty($userId)
-    {
-        return $this->countAllResults(['user_id' => $userId]) === 0;
-    }
-
-    /**
-     * Mengambil ringkasan keranjang (List Item + Total Harga)
-     * Digunakan untuk list() dan purchase()
-     */
     public function getBasketSummary($userId)
     {
-        // 1. Ambil detail item yang dikelompokkan (Group By) agar rapi
-        // Contoh: Dior Sauvage (Qty: 2)
-        $items = $this->select('product_id, product_name, product_price, COUNT(*) as quantity, SUM(product_price) as subtotal')
-                      ->where('user_id', $userId)
-                      ->groupBy('product_id, product_name, product_price')
+        $items = $this->select('baskets.product_id, products.product_name, products.product_price, products.product_size, COUNT(baskets.product_id) as quantity')
+                      ->join('products', 'products.id_product = baskets.product_id')
+                      ->where('baskets.user_id', $userId)
+                      ->groupBy('baskets.product_id, products.product_name, products.product_price, products.product_size')
                       ->findAll();
 
-        // 2. Hitung Grand Total
         $grandTotal = 0;
         $totalItems = 0;
 
-        foreach ($items as $item) {
+        foreach ($items as &$item) {
+            $item['subtotal'] = $item['quantity'] * $item['product_price'];
             $grandTotal += $item['subtotal'];
             $totalItems += $item['quantity'];
         }
 
-        // Return format array lengkap
-        return [
-            'items' => $items,     // List detail produk
-            'count' => $totalItems, // Total jumlah barang
-            'total' => $grandTotal  // Total uang yang harus dibayar
-        ];
+        return ['items' => $items, 'count' => $totalItems, 'total' => $grandTotal];
     }
 
-    /**
-     * Kosongkan keranjang setelah checkout
-     */
+    public function increaseItem($userId, $productId)
+    {
+        return $this->insert(['user_id' => $userId, 'product_id' => $productId]);
+    }
+
+    public function decreaseItem($userId, $productId)
+    {
+        $item = $this->where('user_id', $userId)
+                     ->where('product_id', $productId)
+                     ->orderBy('basket_id', 'DESC') 
+                     ->first();
+
+        if ($item) {
+            return $this->delete($item['basket_id']);
+        }
+        return false;
+    }
+
+    public function removeProductCompletely($userId, $productId)
+    {
+        return $this->where('user_id', $userId)
+                    ->where('product_id', $productId)
+                    ->delete();
+    }
+    
+    // FUNGSI INI YANG DIPANGGIL UNTUK MENGHAPUS SEMUA ISI
     public function clearBasket($userId)
     {
         return $this->where('user_id', $userId)->delete();

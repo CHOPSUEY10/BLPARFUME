@@ -70,3 +70,11 @@ $routes->group('admin', ['filter' => 'jwt'], function($routes) {
 
     
 });
+
+
+$routes->post('cart/add', 'CartController::addBasket');
+$routes->post('cart/update', 'CartController::updateBasket'); // Untuk + dan -
+$routes->post('cart/delete', 'CartController::deleteBasket'); // Untuk hapus total
+
+$routes->get('riwayat', 'Home::riwayat');        // Halaman Riwayat
+$routes->post('cart/checkout', 'CartController::checkout'); // Proses Simpan Order
