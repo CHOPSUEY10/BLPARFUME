@@ -1,13 +1,13 @@
 <?= $this->extend('main') ?>
 
 <?= $this->section('content') ?>
-<div class="container mx-auto px-4 py-12">
+<div class="mx-auto px-4 py-12 max-w-6xl">
     <div class="text-center mb-12">
         <h1 class="text-4xl font-bold text-gray-800 mb-4">Koleksi Parfum Kami</h1>
         <p class="text-gray-600 max-w-2xl mx-auto">Temukan beragam aroma yang menarik sesuai kepribadian Anda.</p>
     </div>
    
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mx-auto">
         
         <?php if (!empty($products) && is_array($products)) : ?>
             <?php foreach ($products as $index => $product) : ?>
