@@ -14,9 +14,9 @@
             <option>6 Bulan Terakhir</option>
             <option>Tahun Ini</option>
         </select>
-        <button class="bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-lg">
-            <i class="fas fa-download mr-2"></i>Export PDF
-        </button>
+        <a href="<?= site_url('admin/finance/export') ?>" class="bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-lg flex items-center">
+            <i class="fas fa-download mr-2"></i>Export Data
+        </a>
     </div>
 </div>
 

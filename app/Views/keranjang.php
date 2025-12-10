@@ -154,15 +154,66 @@
     document.addEventListener('DOMContentLoaded', function() {
         
         async function updateCart(url, payload) {
-            // ... (kode updateCart yang sudah ada) ...
+            // Show loading state (optional, but good for UX)
+            const body = document.querySelector('body');
+            body.style.cursor = 'wait';
+
+            // Add CSRF to payload
+            payload[csrfName] = csrfHash;
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': csrfHash
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+                
+                // Update CSRF token
+                if(result.token) csrfHash = result.token;
+
+                if (result.success) {
+                    window.location.reload();
+                } else {
+                    alert('Gagal: ' + result.message);
+                    body.style.cursor = 'default';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan koneksi');
+                body.style.cursor = 'default';
+            }
         }
 
         document.querySelectorAll('.btn-update').forEach(btn => {
-            // ... (kode btn-update yang sudah ada) ...
+            btn.addEventListener('click', function() {
+                if(this.disabled) return;
+                
+                const productId = this.dataset.productId;
+                const action = this.dataset.action;
+                
+                updateCart('<?= site_url('cart/update') ?>', {
+                    product_id: productId,
+                    action: action
+                });
+            });
         });
 
         document.querySelectorAll('.btn-delete').forEach(btn => {
-            // ... (kode btn-delete yang sudah ada) ...
+            btn.addEventListener('click', function() {
+                if(!confirm('Apakah anda yakin ingin menghapus produk ini?')) return;
+                
+                const productId = this.dataset.productId;
+                
+                updateCart('<?= site_url('cart/delete') ?>', {
+                    product_id: productId
+                });
+            });
         });
     });
 

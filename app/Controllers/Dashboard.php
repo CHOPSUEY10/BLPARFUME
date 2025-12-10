@@ -89,8 +89,18 @@ class Dashboard extends BaseController
         
         // Get orders data
         $orders = $this->adminModel->getAllOrders($limit, $offset, $search, $status);
+        $totalOrders = $this->adminModel->countOrders($search, $status);
         $stats = $this->adminModel->getDashboardStats();
         
+        $totalPages = ceil($totalOrders / $limit);
+        $pager = [
+            'current' => $page,
+            'total_pages' => $totalPages,
+            'total_items' => $totalOrders,
+            'start_item' => $totalOrders > 0 ? $offset + 1 : 0,
+            'end_item' => min($offset + $limit, $totalOrders)
+        ];
+
         $data = [
             'title' => 'Manajemen Pesanan',
             'pageTitle' => 'Pesanan',
@@ -98,10 +108,44 @@ class Dashboard extends BaseController
             'stats' => $stats,
             'search' => $search,
             'status' => $status,
-            'current_page' => $page
+            'current_page' => $page,
+            'pager' => $pager
         ];
         
         return view('admin/adminpesanan', $data);
+    }
+
+    public function exportOrders()
+    {
+        if (session()->get('role') !== 'admin') {
+            return redirect()->to('/')->with('error', 'Akses ditolak!');
+        }
+
+        $search = $this->request->getGet('search') ?? '';
+        $status = $this->request->getGet('status') ?? '';
+        
+        // Limits 10000 for export
+        $orders = $this->adminModel->getAllOrders(10000, 0, $search, $status);
+        
+        header('Content-Type: text/csv');
+        header('Content-Disposition: attachment; filename="export_pesanan_'.date('Y-m-d').'.csv"');
+        
+        $fp = fopen('php://output', 'w');
+        fputcsv($fp, ['Order ID', 'Customer', 'Email', 'Total', 'Status', 'Tanggal']);
+        
+        foreach ($orders as $order) {
+            fputcsv($fp, [
+                $order['order_id'],
+                $order['customer_name'],
+                $order['customer_email'],
+                $order['total_price'],
+                $order['status'],
+                $order['tanggal_transaksi']
+            ]);
+        }
+        
+        fclose($fp);
+        exit;
     }
         
     public function admintransaksi(){
@@ -118,7 +162,17 @@ class Dashboard extends BaseController
         
         // Get transactions data
         $transactions = $this->adminModel->getAllTransactions($limit, $offset, $search, $status);
+        $totalTransactions = $this->adminModel->countTransactions($search, $status);
         $stats = $this->adminModel->getDashboardStats();
+        
+        $totalPages = ceil($totalTransactions / $limit);
+        $pager = [
+            'current' => $page,
+            'total_pages' => $totalPages,
+            'total_items' => $totalTransactions,
+            'start_item' => $totalTransactions > 0 ? $offset + 1 : 0,
+            'end_item' => min($offset + $limit, $totalTransactions)
+        ];
         
         $data = [
             'title' => 'Manajemen Transaksi',
@@ -127,10 +181,82 @@ class Dashboard extends BaseController
             'stats' => $stats,
             'search' => $search,
             'status' => $status,
-            'current_page' => $page
+            'current_page' => $page,
+            'pager' => $pager
         ];
         
         return view('admin/admintransaksi', $data);
+    }
+
+    public function exportTransactions()
+    {
+        if (session()->get('role') !== 'admin') {
+            return redirect()->to('/')->with('error', 'Akses ditolak!');
+        }
+
+        $search = $this->request->getGet('search') ?? '';
+        $status = $this->request->getGet('status') ?? '';
+        
+        $transactions = $this->adminModel->getAllTransactions(10000, 0, $search, $status);
+        
+        header('Content-Type: text/csv');
+        header('Content-Disposition: attachment; filename="export_transaksi_'.date('Y-m-d').'.csv"');
+        
+        $fp = fopen('php://output', 'w');
+        fputcsv($fp, ['ID Transaksi', 'Customer', 'Email', 'Metode', 'Nominal', 'Status', 'Tanggal']);
+        
+        foreach ($transactions as $t) {
+            fputcsv($fp, [
+                $t['order_id'],
+                $t['customer_name'],
+                $t['customer_email'],
+                'Online', // Hardcoded as per view
+                $t['total_price'],
+                $t['status'],
+                $t['tanggal_transaksi']
+            ]);
+        }
+        
+        fclose($fp);
+        exit;
+    }
+
+    public function exportFinance()
+    {
+        if (session()->get('role') !== 'admin') {
+            return redirect()->to('/')->with('error', 'Akses ditolak!');
+        }
+        
+        // Download Monthly Finance Report
+        $monthlyFinance = $this->adminModel->getFinancialSummary('month');
+        $yearlyFinance = $this->adminModel->getFinancialSummary('year');
+        $monthlySales = $this->adminModel->getMonthlySalesData();
+        
+        header('Content-Type: text/csv');
+        header('Content-Disposition: attachment; filename="laporan_keuangan_'.date('Y-m-d').'.csv"');
+        
+        $fp = fopen('php://output', 'w');
+        
+        // Summary Section
+        fputcsv($fp, ['SUMMARY KEUANGAN']);
+        fputcsv($fp, ['Periode', 'Total Revenue', 'Total Orders', 'Avg Order Value']);
+        fputcsv($fp, ['Bulan Ini', $monthlyFinance['total_revenue'], $monthlyFinance['total_orders'], $monthlyFinance['average_order']]);
+        fputcsv($fp, ['Tahun Ini', $yearlyFinance['total_revenue'], $yearlyFinance['total_orders'], $yearlyFinance['average_order']]);
+        fputcsv($fp, []);
+        
+        // Details Section
+        fputcsv($fp, ['RINCIAN BULANAN']);
+        fputcsv($fp, ['Bulan', 'Total Penjualan', 'Jumlah Order']);
+        foreach ($monthlySales as $sale) {
+            fputcsv($fp, [
+                $sale['month_name'],
+                $sale['total_sales'],
+                $sale['total_orders']
+            ]);
+        }
+        
+        fclose($fp);
+        exit;
     }
     
     public function adminkeuangan(){
@@ -159,18 +285,65 @@ class Dashboard extends BaseController
             return redirect()->to('/')->with('error', 'Akses ditolak!');
         }
         
-        // Get all products
-        $products = $this->productModel->getAllItems();
+        $search = $this->request->getGet('search') ?? '';
+        $page = $this->request->getGet('page') ?? 1;
+        $limit = 12; // Grid view usually fits 3-4 columns
+        $offset = ($page - 1) * $limit;
+
+        // Get products data
+        $products = $this->productModel->getProductsPaginated($limit, $offset, $search);
+        $totalProducts = $this->productModel->countProducts($search);
         $stats = $this->adminModel->getDashboardStats();
+        
+        $totalPages = ceil($totalProducts / $limit);
+        $pager = [
+            'current' => $page,
+            'total_pages' => $totalPages,
+            'total_items' => $totalProducts,
+            'start_item' => $totalProducts > 0 ? $offset + 1 : 0,
+            'end_item' => min($offset + $limit, $totalProducts)
+        ];
         
         $data = [
             'title' => 'Manajemen Produk',
             'pageTitle' => 'Produk',
             'products' => $products,
-            'stats' => $stats
+            'stats' => $stats,
+            'search' => $search,
+            'pager' => $pager
         ];
         
         return view('admin/adminproduk', $data);
+    }
+
+    public function exportProducts()
+    {
+        if (session()->get('role') !== 'admin') {
+            return redirect()->to('/')->with('error', 'Akses ditolak!');
+        }
+
+        $search = $this->request->getGet('search') ?? '';
+        
+        $products = $this->productModel->getProductsPaginated(10000, 0, $search);
+        
+        header('Content-Type: text/csv');
+        header('Content-Disposition: attachment; filename="export_produk_'.date('Y-m-d').'.csv"');
+        
+        $fp = fopen('php://output', 'w');
+        fputcsv($fp, ['ID Produk', 'Nama Produk', 'Deskripsi', 'Ukuran', 'Harga']);
+        
+        foreach ($products as $p) {
+            fputcsv($fp, [
+                $p['id_product'],
+                $p['product_name'],
+                $p['product_desc'],
+                $p['product_size'],
+                $p['product_price']
+            ]);
+        }
+        
+        fclose($fp);
+        exit;
     }
 
     // Message Management

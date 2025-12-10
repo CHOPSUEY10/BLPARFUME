@@ -40,11 +40,15 @@ $routes->group('basket/api', function($routes) {
 $routes->group('admin', ['filter' => 'admin'], function($routes) {
     $routes->get('dashboard','Dashboard::admin');
     $routes->get('order/view','Dashboard::adminpesanan');
+    $routes->get('order/export','Dashboard::exportOrders');
     $routes->get('transaction/view','Dashboard::admintransaksi');
+    $routes->get('transaction/export','Dashboard::exportTransactions');
     $routes->get('finance/view','Dashboard::adminkeuangan');
+    $routes->get('finance/export','Dashboard::exportFinance');
     $routes->get('message/view','Dashboard::adminpesan');
     $routes->post('message/delete/(:num)', 'Dashboard::deleteMessage/$1');
     $routes->get('product/view','Dashboard::adminproduk');
+    $routes->get('product/export','Dashboard::exportProducts');
     
     // Product CRUD Routes
     $routes->get('product/create','Dashboard::createProduct');

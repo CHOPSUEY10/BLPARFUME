@@ -8,9 +8,9 @@
         <p class="text-gray-600 mt-1">Pantau semua transaksi yang berhasil</p>
     </div>
     <div class="flex space-x-3">
-        <button class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+        <a href="<?= site_url('admin/transaction/export') ?>?search=<?= urlencode($search) ?>&status=<?= urlencode($status) ?>" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors inline-flex items-center">
             <i class="fas fa-download mr-2"></i>Export Excel
-        </button>
+        </a>
         <button class="bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-lg">
             <i class="fas fa-chart-line mr-2"></i>Laporan
         </button>
@@ -205,24 +205,26 @@
     <div class="bg-white px-6 py-4 border-t border-gray-200">
         <div class="flex items-center justify-between">
             <div class="text-sm text-gray-700">
-                Menampilkan <span class="font-medium">1</span> sampai <span class="font-medium">10</span> dari <span class="font-medium">1,234</span> transaksi
+                Menampilkan <span class="font-medium"><?= $pager['start_item'] ?></span> sampai <span class="font-medium"><?= $pager['end_item'] ?></span> dari <span class="font-medium"><?= $pager['total_items'] ?></span> transaksi
             </div>
             <div class="flex space-x-2">
-                <button class="px-3 py-2 text-sm text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-                    Sebelumnya
-                </button>
-                <button class="px-3 py-2 text-sm text-black bg-yellow-400 border border-yellow-400 rounded-lg font-medium">
-                    1
-                </button>
-                <button class="px-3 py-2 text-sm text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-                    2
-                </button>
-                <button class="px-3 py-2 text-sm text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-                    3
-                </button>
-                <button class="px-3 py-2 text-sm text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-                    Selanjutnya
-                </button>
+                <?php if ($pager['current'] > 1): ?>
+                    <a href="?page=<?= $pager['current'] - 1 ?>&search=<?= urlencode($search) ?>&status=<?= urlencode($status) ?>" 
+                       class="px-3 py-2 text-sm text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                        Sebelumnya
+                    </a>
+                <?php endif; ?>
+                
+                <span class="px-3 py-2 text-sm text-black bg-yellow-400 border border-yellow-400 rounded-lg font-medium">
+                    <?= $pager['current'] ?>
+                </span>
+                
+                <?php if ($pager['current'] < $pager['total_pages']): ?>
+                    <a href="?page=<?= $pager['current'] + 1 ?>&search=<?= urlencode($search) ?>&status=<?= urlencode($status) ?>" 
+                       class="px-3 py-2 text-sm text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                        Selanjutnya
+                    </a>
+                <?php endif; ?>
             </div>
         </div>
     </div>

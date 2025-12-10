@@ -21,9 +21,9 @@
         <p class="text-gray-600 mt-1">Kelola katalog parfum Anda</p>
     </div>
     <div class="flex space-x-3">
-        <button class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+        <a href="<?= site_url('admin/product/export') ?>?search=<?= urlencode($search) ?>" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center">
             <i class="fas fa-download mr-2"></i>Export
-        </button>
+        </a>
         <a href="<?= site_url('admin/product/create') ?>" class="bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-lg inline-block">
             <i class="fas fa-plus mr-2"></i>Tambah Produk
         </a>
@@ -161,24 +161,26 @@
 <div class="bg-white rounded-xl shadow-sm border border-gray-100 px-6 py-4">
     <div class="flex items-center justify-between">
         <div class="text-sm text-gray-700">
-            Menampilkan <span class="font-medium">1</span> sampai <span class="font-medium">12</span> dari <span class="font-medium">89</span> produk
+            Menampilkan <span class="font-medium"><?= $pager['start_item'] ?></span> sampai <span class="font-medium"><?= $pager['end_item'] ?></span> dari <span class="font-medium"><?= $pager['total_items'] ?></span> produk
         </div>
         <div class="flex space-x-2">
-            <button class="px-3 py-2 text-sm text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-                Sebelumnya
-            </button>
-            <button class="px-3 py-2 text-sm text-black bg-yellow-400 border border-yellow-400 rounded-lg font-medium">
-                1
-            </button>
-            <button class="px-3 py-2 text-sm text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-                2
-            </button>
-            <button class="px-3 py-2 text-sm text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-                3
-            </button>
-            <button class="px-3 py-2 text-sm text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-                Selanjutnya
-            </button>
+            <?php if ($pager['current'] > 1): ?>
+                <a href="?page=<?= $pager['current'] - 1 ?>&search=<?= urlencode($search) ?>" 
+                   class="px-3 py-2 text-sm text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                    Sebelumnya
+                </a>
+            <?php endif; ?>
+            
+            <span class="px-3 py-2 text-sm text-black bg-yellow-400 border border-yellow-400 rounded-lg font-medium">
+                <?= $pager['current'] ?>
+            </span>
+            
+            <?php if ($pager['current'] < $pager['total_pages']): ?>
+                <a href="?page=<?= $pager['current'] + 1 ?>&search=<?= urlencode($search) ?>" 
+                   class="px-3 py-2 text-sm text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                    Selanjutnya
+                </a>
+            <?php endif; ?>
         </div>
     </div>
 </div>

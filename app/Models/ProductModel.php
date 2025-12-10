@@ -21,6 +21,26 @@ class ProductModel extends Model
             return []; // Return array kosong jika gagal
         }
     }
+
+    public function getProductsPaginated($limit, $offset, $search = '')
+    {
+        $builder = $this->table($this->table);
+        if(!empty($search)){
+            $builder->like('product_name', $search)
+                    ->orLike('product_desc', $search);
+        }
+        return $builder->limit($limit, $offset)->get()->getResultArray();
+    }
+
+    public function countProducts($search = '')
+    {
+        $builder = $this->table($this->table);
+        if(!empty($search)){
+            $builder->like('product_name', $search)
+                    ->orLike('product_desc', $search);
+        }
+        return $builder->countAllResults();
+    }
     
     // Mengambil satu produk berdasarkan ID
     public function getItemById($id){     

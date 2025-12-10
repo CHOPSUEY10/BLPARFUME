@@ -92,6 +92,26 @@ class AdminModel extends Model
             ->getResultArray();
     }
 
+    public function countOrders($search = '', $status = '')
+    {
+        $builder = $this->db->table('orders o')
+            ->join('users u', 'u.id_user = o.user_id', 'left');
+        
+        if (!empty($search)) {
+            $builder->groupStart()
+                ->like('u.nama', $search)
+                ->orLike('u.email', $search)
+                ->orLike('o.order_id', $search)
+                ->groupEnd();
+        }
+        
+        if (!empty($status)) {
+            $builder->where('o.status', $status);
+        }
+        
+        return $builder->countAllResults();
+    }
+
     // Get Monthly Sales Data for Chart
     public function getMonthlySalesData($year = null)
     {
@@ -212,5 +232,11 @@ class AdminModel extends Model
             ->where('o.order_id', $orderId)
             ->get()
             ->getRowArray();
+    }
+
+    public function countTransactions($search = '', $status = '')
+    {
+        // Reusing countOrders logic since transactions view uses the same table
+        return $this->countOrders($search, $status);
     }
 }
