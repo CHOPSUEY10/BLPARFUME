@@ -114,27 +114,21 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200">
-                    <tr>
-                        <td class="px-6 py-4 text-sm font-medium text-gray-900">Desember 2024</td>
-                        <td class="px-6 py-4 text-sm text-gray-900">Rp 45.2M</td>
-                        <td class="px-6 py-4 text-sm text-red-600">Rp 13.1M</td>
-                        <td class="px-6 py-4 text-sm font-semibold text-green-600">Rp 32.1M</td>
-                        <td class="px-6 py-4 text-sm text-gray-900">71%</td>
-                    </tr>
-                    <tr>
-                        <td class="px-6 py-4 text-sm font-medium text-gray-900">November 2024</td>
-                        <td class="px-6 py-4 text-sm text-gray-900">Rp 38.7M</td>
-                        <td class="px-6 py-4 text-sm text-red-600">Rp 11.8M</td>
-                        <td class="px-6 py-4 text-sm font-semibold text-green-600">Rp 26.9M</td>
-                        <td class="px-6 py-4 text-sm text-gray-900">69%</td>
-                    </tr>
-                    <tr>
-                        <td class="px-6 py-4 text-sm font-medium text-gray-900">Oktober 2024</td>
-                        <td class="px-6 py-4 text-sm text-gray-900">Rp 42.1M</td>
-                        <td class="px-6 py-4 text-sm text-red-600">Rp 12.9M</td>
-                        <td class="px-6 py-4 text-sm font-semibold text-green-600">Rp 29.2M</td>
-                        <td class="px-6 py-4 text-sm text-gray-900">69%</td>
-                    </tr>
+                    <?php if (!empty($monthly_breakdown)): ?>
+                        <?php foreach ($monthly_breakdown as $month): ?>
+                            <tr>
+                                <td class="px-6 py-4 text-sm font-medium text-gray-900"><?= $month['month'] ?></td>
+                                <td class="px-6 py-4 text-sm text-gray-900">Rp <?= number_format($month['revenue'], 0, ',', '.') ?></td>
+                                <td class="px-6 py-4 text-sm text-red-600">Rp <?= number_format($month['costs'], 0, ',', '.') ?></td>
+                                <td class="px-6 py-4 text-sm font-semibold text-green-600">Rp <?= number_format($month['profit'], 0, ',', '.') ?></td>
+                                <td class="px-6 py-4 text-sm text-gray-900"><?= $month['margin'] ?>%</td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <tr>
+                            <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">Belum ada data</td>
+                        </tr>
+                    <?php endif; ?>
                 </tbody>
             </table>
         </div>
@@ -148,17 +142,17 @@
             <div>
                 <div class="flex items-center justify-between mb-2">
                     <span class="text-sm text-gray-600">ROI (Return on Investment)</span>
-                    <span class="text-sm font-semibold text-green-600">245%</span>
+                    <span class="text-sm font-semibold text-green-600"><?= ($financial_metrics['roi'] ?? 0) ?>%</span>
                 </div>
                 <div class="w-full bg-gray-200 rounded-full h-2">
-                    <div class="bg-green-500 h-2 rounded-full" style="width: 85%"></div>
+                    <div class="bg-green-500 h-2 rounded-full" style="width: <?= min(($financial_metrics['roi'] ?? 0), 100) ?>%"></div>
                 </div>
             </div>
 
             <div>
                 <div class="flex items-center justify-between mb-2">
                     <span class="text-sm text-gray-600">Customer Lifetime Value</span>
-                    <span class="text-sm font-semibold text-blue-600">Rp 2.1M</span>
+                    <span class="text-sm font-semibold text-blue-600">Rp <?= number_format(($financial_metrics['clv'] ?? 0) / 1000000, 1) ?>M</span>
                 </div>
                 <div class="w-full bg-gray-200 rounded-full h-2">
                     <div class="bg-blue-500 h-2 rounded-full" style="width: 70%"></div>
@@ -168,7 +162,7 @@
             <div>
                 <div class="flex items-center justify-between mb-2">
                     <span class="text-sm text-gray-600">Cost per Acquisition</span>
-                    <span class="text-sm font-semibold text-purple-600">Rp 125K</span>
+                    <span class="text-sm font-semibold text-purple-600">Rp <?= number_format(($financial_metrics['cpa'] ?? 0) / 1000, 0) ?>K</span>
                 </div>
                 <div class="w-full bg-gray-200 rounded-full h-2">
                     <div class="bg-purple-500 h-2 rounded-full" style="width: 60%"></div>
@@ -178,21 +172,21 @@
             <div>
                 <div class="flex items-center justify-between mb-2">
                     <span class="text-sm text-gray-600">Repeat Purchase Rate</span>
-                    <span class="text-sm font-semibold text-orange-600">68%</span>
+                    <span class="text-sm font-semibold text-orange-600"><?= ($financial_metrics['repeat_purchase_rate'] ?? 0) ?>%</span>
                 </div>
                 <div class="w-full bg-gray-200 rounded-full h-2">
-                    <div class="bg-orange-500 h-2 rounded-full" style="width: 68%"></div>
+                    <div class="bg-orange-500 h-2 rounded-full" style="width: <?= ($financial_metrics['repeat_purchase_rate'] ?? 0) ?>%"></div>
                 </div>
             </div>
         </div>
 
         <div class="mt-6 pt-6 border-t border-gray-200">
             <div class="text-center">
-                <p class="text-2xl font-bold text-gray-900">Rp 45.2M</p>
+                <p class="text-2xl font-bold text-gray-900">Rp <?= number_format(($monthly_finance['total_revenue'] ?? 0) / 1000000, 1) ?>M</p>
                 <p class="text-sm text-gray-500">Total Pendapatan Bulan Ini</p>
                 <div class="mt-2 flex items-center justify-center text-green-600">
                     <i class="fas fa-arrow-up mr-1"></i>
-                    <span class="text-sm font-medium">+12% dari bulan lalu</span>
+                    <span class="text-sm font-medium">Data dari database</span>
                 </div>
             </div>
         </div>
@@ -266,12 +260,23 @@ new Chart(revenueCtx, {
 
 // Profit Chart
 const profitCtx = document.getElementById('profitChart').getContext('2d');
+<?php 
+    // Calculate average profit margin from monthly breakdown
+    $totalMargin = 0;
+    $dataCount = count($monthly_breakdown);
+    foreach ($monthly_breakdown as $month) {
+        $totalMargin += $month['margin'];
+    }
+    $avgMargin = $dataCount > 0 ? round($totalMargin / $dataCount) : 0;
+    $profitPercentage = $avgMargin;
+    $costPercentage = 100 - $avgMargin;
+?>
 new Chart(profitCtx, {
     type: 'doughnut',
     data: {
         labels: ['Keuntungan', 'Biaya Operasional'],
         datasets: [{
-            data: [71, 29],
+            data: [<?= $profitPercentage ?>, <?= $costPercentage ?>],
             backgroundColor: [
                 'rgb(34, 197, 94)',
                 'rgb(239, 68, 68)'

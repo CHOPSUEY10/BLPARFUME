@@ -239,4 +239,97 @@ class AdminModel extends Model
         // Reusing countOrders logic since transactions view uses the same table
         return $this->countOrders($search, $status);
     }
+
+    // Get Financial Metrics (ROI, CLV, CPA, Repeat Purchase Rate)
+    public function getFinancialMetrics()
+    {
+        $metrics = [];
+        
+        // Total Revenue All Time
+        $totalRevenueQuery = $this->db->table('orders')
+            ->selectSum('total_price')
+            ->where('status', 'paid')
+            ->get();
+        $totalRevenue = $totalRevenueQuery->getRow()->total_price ?? 0;
+        
+        // Total Paid Orders (all time)
+        $totalPaidOrders = $this->db->table('orders')
+            ->where('status', 'paid')
+            ->countAllResults();
+        
+        // Calculate average cost per order (assuming 30% of revenue as costs)
+        $costPerOrder = $totalRevenue > 0 ? ($totalRevenue * 0.30) / $totalPaidOrders : 0;
+        
+        // ROI - Return on Investment (assuming 30% initial investment)
+        $initialInvestment = $totalRevenue * 0.30;
+        $profit = $totalRevenue - $initialInvestment;
+        $metrics['roi'] = $initialInvestment > 0 ? round(($profit / $initialInvestment) * 100) : 0;
+        
+        // CLV - Customer Lifetime Value
+        $totalUniqueCustomers = $this->db->table('orders')
+            ->distinct()
+            ->where('status', 'paid')
+            ->countAllResults();
+        $metrics['clv'] = $totalUniqueCustomers > 0 ? round($totalRevenue / $totalUniqueCustomers) : 0;
+        
+        // CPA - Cost per Acquisition (assuming Rp 125K marketing cost per new customer)
+        $metrics['cpa'] = 125000; // Fixed assumed value, can be updated based on actual marketing spend table
+        
+        // Repeat Purchase Rate
+        $repeatCustomersQuery = $this->db->query("
+            SELECT COUNT(DISTINCT user_id) as repeat_customers
+            FROM orders
+            WHERE user_id IN (
+                SELECT user_id FROM orders 
+                WHERE status = 'paid'
+                GROUP BY user_id 
+                HAVING COUNT(*) > 1
+            ) AND status = 'paid'
+        ");
+        $repeatCustomers = $repeatCustomersQuery->getRow()->repeat_customers ?? 0;
+        $metrics['repeat_purchase_rate'] = $totalUniqueCustomers > 0 ? round(($repeatCustomers / $totalUniqueCustomers) * 100) : 0;
+        
+        return $metrics;
+    }
+
+    // Get Monthly Financial Breakdown (last 12 months)
+    public function getMonthlyBreakdown()
+    {
+        $breakdown = [];
+        
+        // Get last 12 months of data
+        for ($i = 11; $i >= 0; $i--) {
+            $date = strtotime("-$i months");
+            $month = date('Y-m', $date);
+            $monthName = date('F Y', $date);
+            
+            // Revenue for the month
+            $revenueQuery = $this->db->table('orders')
+                ->selectSum('total_price')
+                ->where('status', 'paid')
+                ->where('YEAR(tanggal_transaksi)', date('Y', $date))
+                ->where('MONTH(tanggal_transaksi)', date('m', $date))
+                ->get();
+            $revenue = $revenueQuery->getRow()->total_price ?? 0;
+            
+            // Calculate costs (assuming 30% of revenue)
+            $costs = $revenue * 0.30;
+            
+            // Calculate profit
+            $profit = $revenue - $costs;
+            
+            // Calculate margin percentage
+            $margin = $revenue > 0 ? round(($profit / $revenue) * 100) : 0;
+            
+            $breakdown[] = [
+                'month' => $monthName,
+                'revenue' => $revenue,
+                'costs' => $costs,
+                'profit' => $profit,
+                'margin' => $margin
+            ];
+        }
+        
+        return $breakdown;
+    }
 }

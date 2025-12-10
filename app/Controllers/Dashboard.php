@@ -268,13 +268,17 @@ class Dashboard extends BaseController
         $monthlyFinance = $this->adminModel->getFinancialSummary('month');
         $yearlyFinance = $this->adminModel->getFinancialSummary('year');
         $monthlySales = $this->adminModel->getMonthlySalesData();
+        $financialMetrics = $this->adminModel->getFinancialMetrics();
+        $monthlyBreakdown = $this->adminModel->getMonthlyBreakdown();
         
         $data = [
             'title' => 'Laporan Keuangan',
             'pageTitle' => 'Keuangan',
             'monthly_finance' => $monthlyFinance,
             'yearly_finance' => $yearlyFinance,
-            'monthly_sales' => $monthlySales
+            'monthly_sales' => $monthlySales,
+            'financial_metrics' => $financialMetrics,
+            'monthly_breakdown' => $monthlyBreakdown
         ];
         
         return view('admin/adminkeuangan', $data);
