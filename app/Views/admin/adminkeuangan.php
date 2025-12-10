@@ -16,22 +16,20 @@
         </select>
         <a href="<?= site_url('admin/finance/export') ?>" class="bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-lg flex items-center">
             <i class="fas fa-download mr-2"></i>Export Data
-        </a>
-    </div>
-</div>
-
-<!-- Revenue Cards -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-    <!-- Total Revenue -->
-    <div class="bg-gradient-to-br from-gray-800 to-black rounded-xl p-6 text-white shadow-lg border-t-4 border-yellow-400">
-        <div class="flex items-center justify-between mb-4">
-            <div class="w-12 h-12 bg-yellow-400/20 rounded-lg flex items-center justify-center">
-                <i class="fas fa-chart-line text-2xl text-yellow-400"></i>
+            <div>
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm text-gray-600">Repeat Purchase Rate</span>
+                    <span class="text-sm font-semibold text-orange-600"><?= ($financial_metrics['repeat_purchase_rate'] ?? 0) ?>%</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div class="bg-orange-500 h-2 rounded-full" style="width: <?= ($financial_metrics['repeat_purchase_rate'] ?? 0) ?>%"></div>
+                </div>
+            </div>
             </div>
             <span class="text-sm bg-yellow-400/20 text-yellow-400 px-2 py-1 rounded-full font-medium">Total</span>
         </div>
         <h3 class="text-sm font-medium opacity-90">Total Pendapatan</h3>
-        <p class="text-3xl font-bold">Rp <?= number_format(($yearly_finance['total_revenue'] ?? 0) / 1000000, 1) ?>M</p>
+        <p class="text-3xl font-bold">Rp <?= number_format(($yearly_finance['total_revenue'] ?? 0), 0, ',', '.') ?></p>
         <p class="text-sm opacity-75 mt-1">Tahun ini</p>
     </div>
 
@@ -44,7 +42,7 @@
             <span class="text-sm bg-yellow-400/20 text-yellow-400 px-2 py-1 rounded-full font-medium">Bulan</span>
         </div>
         <h3 class="text-sm font-medium opacity-90">Pendapatan Bulan Ini</h3>
-        <p class="text-3xl font-bold">Rp <?= number_format(($monthly_finance['total_revenue'] ?? 0) / 1000000, 1) ?>M</p>
+        <p class="text-3xl font-bold">Rp <?= number_format(($monthly_finance['total_revenue'] ?? 0), 0, ',', '.') ?></p>
         <p class="text-sm opacity-75 mt-1"><?= date('F Y') ?></p>
     </div>
 
@@ -57,7 +55,7 @@
             <span class="text-sm bg-yellow-400/20 text-yellow-400 px-2 py-1 rounded-full font-medium">Avg</span>
         </div>
         <h3 class="text-sm font-medium opacity-90">Rata-rata Order</h3>
-        <p class="text-3xl font-bold">Rp <?= number_format(($monthly_finance['average_order'] ?? 0) / 1000, 0) ?>K</p>
+        <p class="text-3xl font-bold">Rp <?= number_format(($monthly_finance['average_order'] ?? 0), 0, ',', '.') ?></p>
         <p class="text-sm opacity-75 mt-1">Per transaksi</p>
     </div>
 </div>
@@ -152,7 +150,7 @@
             <div>
                 <div class="flex items-center justify-between mb-2">
                     <span class="text-sm text-gray-600">Customer Lifetime Value</span>
-                    <span class="text-sm font-semibold text-blue-600">Rp <?= number_format(($financial_metrics['clv'] ?? 0) / 1000000, 1) ?>M</span>
+                    <span class="text-sm font-semibold text-blue-600">Rp <?= number_format(($financial_metrics['clv'] ?? 0), 0, ',', '.') ?></span>
                 </div>
                 <div class="w-full bg-gray-200 rounded-full h-2">
                     <div class="bg-blue-500 h-2 rounded-full" style="width: 70%"></div>
@@ -162,7 +160,7 @@
             <div>
                 <div class="flex items-center justify-between mb-2">
                     <span class="text-sm text-gray-600">Cost per Acquisition</span>
-                    <span class="text-sm font-semibold text-purple-600">Rp <?= number_format(($financial_metrics['cpa'] ?? 0) / 1000, 0) ?>K</span>
+                    <span class="text-sm font-semibold text-purple-600">Rp <?= number_format(($financial_metrics['cpa'] ?? 0), 0, ',', '.') ?></span>
                 </div>
                 <div class="w-full bg-gray-200 rounded-full h-2">
                     <div class="bg-purple-500 h-2 rounded-full" style="width: 60%"></div>
@@ -170,19 +168,21 @@
             </div>
 
             <div>
+                <?php $rpr = intval($financial_metrics['repeat_purchase_rate'] ?? 0); $rpr = max(0, min(100, $rpr)); ?>
                 <div class="flex items-center justify-between mb-2">
                     <span class="text-sm text-gray-600">Repeat Purchase Rate</span>
-                    <span class="text-sm font-semibold text-orange-600"><?= ($financial_metrics['repeat_purchase_rate'] ?? 0) ?>%</span>
+                    <span class="text-sm font-semibold text-orange-600"><?= $rpr ?>%</span>
                 </div>
-                <div class="w-full bg-gray-200 rounded-full h-2">
-                    <div class="bg-orange-500 h-2 rounded-full" style="width: <?= ($financial_metrics['repeat_purchase_rate'] ?? 0) ?>%"></div>
+                <div class="w-full bg-gray-200 rounded-full h-2 relative">
+                    <div class="bg-orange-500 h-2 rounded-full" style="width: <?= $rpr ?>%"></div>
+                    <div class="absolute right-0 -top-6 text-xs text-gray-600"><?= $rpr ?>%</div>
                 </div>
             </div>
         </div>
 
         <div class="mt-6 pt-6 border-t border-gray-200">
             <div class="text-center">
-                <p class="text-2xl font-bold text-gray-900">Rp <?= number_format(($monthly_finance['total_revenue'] ?? 0) / 1000000, 1) ?>M</p>
+                <p class="text-2xl font-bold text-gray-900">Rp <?= number_format(($monthly_finance['total_revenue'] ?? 0), 0, ',', '.') ?></p>
                 <p class="text-sm text-gray-500">Total Pendapatan Bulan Ini</p>
                 <div class="mt-2 flex items-center justify-center text-green-600">
                     <i class="fas fa-arrow-up mr-1"></i>
@@ -215,7 +215,7 @@ const revenueCtx = document.getElementById('revenueChart').getContext('2d');
             $saleMonth = date('M', mktime(0, 0, 0, $sale['month'], 1));
             $index = array_search($saleMonth, $revenueLabels);
             if ($index !== false) {
-                $revenueData[$index] = round($sale['total_sales'] / 1000000, 1);
+                $revenueData[$index] = (int) $sale['total_sales'];
             }
         }
     }
@@ -225,7 +225,7 @@ new Chart(revenueCtx, {
     data: {
         labels: <?= json_encode($revenueLabels) ?>,
         datasets: [{
-            label: 'Pendapatan (Juta Rupiah)',
+            label: 'Pendapatan (Rp)',
             data: <?= json_encode($revenueData) ?>,
             borderColor: 'rgb(59, 130, 246)',
             backgroundColor: 'rgba(59, 130, 246, 0.1)',
