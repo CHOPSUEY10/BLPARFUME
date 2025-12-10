@@ -72,7 +72,7 @@
         <div class="flex items-center justify-between">
             <div>
                 <p class="text-sm text-gray-600">Pendapatan</p>
-                <p class="text-2xl font-bold text-gray-900">Rp <?= number_format(($stats['total_revenue'] ?? 0) / 1000000, 1) ?>M</p>
+                <p class="text-2xl font-bold text-gray-900">Rp <?= number_format(($stats['total_revenue'] ?? 0), 0, ',', '.') ?></p>
             </div>
             <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
                 <i class="fas fa-money-bill-wave text-orange-600"></i>
@@ -83,9 +83,9 @@
 
 <!-- Filters -->
 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
-    <div class="flex flex-wrap items-center gap-4">
+    <form method="get" class="flex flex-wrap items-center gap-4">
         <div class="flex-1 min-w-64">
-            <input type="text" placeholder="Cari produk..." 
+            <input id="productSearch" name="search" type="text" placeholder="Cari produk..." value="<?= esc($search ?? '') ?>"
                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500">
         </div>
         <select class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500">
@@ -100,10 +100,10 @@
             <option>Tidak Aktif</option>
             <option>Stok Habis</option>
         </select>
-        <button class="bg-yellow-400 hover:bg-yellow-500 text-black px-4 py-2 rounded-lg transition-colors">
+        <button type="submit" class="bg-yellow-400 hover:bg-yellow-500 text-black px-4 py-2 rounded-lg transition-colors">
             <i class="fas fa-filter"></i>
         </button>
-    </div>
+    </form>
 </div>
 
 <!-- Products Grid -->
@@ -130,9 +130,10 @@
                         <span class="text-lg font-bold text-gray-900"><?= format_rupiah($product['product_price']) ?></span>
                         <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Aktif</span>
                     </div>
-                    <div class="flex items-center justify-between text-sm text-gray-500 mb-3">
+                    <div class="grid grid-cols-2 gap-2 text-sm text-gray-500 mb-3">
                         <span>ID: <?= $product['id_product'] ?></span>
-                        <span><?= esc($product['product_size']) ?></span>
+                        <span>Ukuran: <?= esc($product['product_size'] ?? '-') ?></span>
+                        <span class="col-span-2">Stok: <span class="font-semibold <?= ($product['stock'] ?? 0) > 0 ? 'text-green-600' : 'text-red-600' ?>"><?= $product['stock'] ?? 0 ?></span> unit</span>
                     </div>
                     <div class="flex space-x-2">
                         <a href="<?= site_url('admin/product/edit/' . $product['id_product']) ?>" class="flex-1 bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black py-2 px-3 rounded-lg text-sm transition-colors font-medium text-center inline-block">

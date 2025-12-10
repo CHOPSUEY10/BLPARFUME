@@ -8,7 +8,7 @@
         <p class="text-gray-600 mt-1">Pantau semua transaksi yang berhasil</p>
     </div>
     <div class="flex space-x-3">
-        <a href="<?= site_url('admin/transaction/export') ?>?search=<?= urlencode($search) ?>&status=<?= urlencode($status) ?>" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors inline-flex items-center">
+        <a href="<?= site_url('admin/transaction/export') ?>?search=<?= urlencode($search) ?>&status=<?= urlencode($status) ?>&from=<?= urlencode($from ?? '') ?>&to=<?= urlencode($to ?? '') ?>" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors inline-flex items-center">
             <i class="fas fa-download mr-2"></i>Export Excel
         </a>
         <button class="bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-lg">
@@ -47,7 +47,7 @@
         <div class="flex items-center justify-between">
             <div>
                 <p class="text-sm text-gray-600">Total Nilai</p>
-                <p class="text-2xl font-bold text-gray-900">Rp <?= number_format(($stats['total_revenue'] ?? 0) / 1000000, 1) ?>M</p>
+                <p class="text-2xl font-bold text-gray-900">Rp <?= number_format(($stats['total_revenue'] ?? 0), 0, ',', '.') ?></p>
             </div>
             <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
                 <i class="fas fa-money-bill-wave text-purple-600"></i>
@@ -59,7 +59,7 @@
         <div class="flex items-center justify-between">
             <div>
                 <p class="text-sm text-gray-600">Rata-rata</p>
-                <p class="text-2xl font-bold text-gray-900">Rp <?= $stats['total_orders'] > 0 ? number_format($stats['total_revenue'] / $stats['total_orders'] / 1000, 0) : 0 ?>K</p>
+                <p class="text-2xl font-bold text-gray-900">Rp <?= $stats['total_orders'] > 0 ? number_format($stats['total_revenue'] / $stats['total_orders'], 0, ',', '.') : '0' ?></p>
             </div>
             <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
                 <i class="fas fa-chart-bar text-orange-600"></i>
@@ -69,25 +69,25 @@
 </div>
 
 <!-- Filters -->
-<div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
-    <div class="flex flex-wrap items-center gap-4">
-        <div class="flex-1 min-w-64">
-            <input type="text" placeholder="Cari transaksi..." 
-                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500">
-        </div>
-        <select class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500">
-            <option>Semua Status</option>
-            <option>Berhasil</option>
-            <option>Pending</option>
-            <option>Gagal</option>
-        </select>
-        <input type="date" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500">
-        <input type="date" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500">
-        <button class="bg-yellow-400 hover:bg-yellow-500 text-black px-4 py-2 rounded-lg transition-colors">
-            <i class="fas fa-filter"></i>
-        </button>
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+        <form method="get" class="flex flex-wrap items-center gap-4">
+            <div class="flex-1 min-w-64">
+                <input id="txnSearch" name="search" type="text" placeholder="Cari transaksi..." value="<?= esc($search ?? '') ?>"
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500">
+            </div>
+            <select id="txnStatus" name="status" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500">
+                <option value="" <?= ($status === '') ? 'selected' : '' ?>>Semua Status</option>
+                <option value="paid" <?= ($status === 'paid') ? 'selected' : '' ?>>Berhasil</option>
+                <option value="pending" <?= ($status === 'pending') ? 'selected' : '' ?>>Pending</option>
+                <option value="cancel" <?= in_array($status, ['cancel', 'cancelled']) ? 'selected' : '' ?>>Dibatalkan</option>
+            </select>
+            <input id="txnFrom" name="from" type="date" value="<?= esc($from ?? '') ?>" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500">
+            <input id="txnTo" name="to" type="date" value="<?= esc($to ?? '') ?>" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500">
+            <button type="submit" class="bg-yellow-400 hover:bg-yellow-500 text-black px-4 py-2 rounded-lg transition-colors">
+                <i class="fas fa-filter"></i>
+            </button>
+        </form>
     </div>
-</div>
 
 <!-- Transactions Table -->
 <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
@@ -152,6 +152,11 @@
                                             $statusText = 'Pending';
                                             $statusIcon = 'fas fa-clock';
                                             break;
+                                        case 'cancel':
+                                            $statusClass = 'bg-red-100 text-red-800';
+                                            $statusText = 'Dibatalkan';
+                                            $statusIcon = 'fas fa-times-circle';
+                                            break;
                                         case 'cancelled':
                                             $statusClass = 'bg-red-100 text-red-800';
                                             $statusText = 'Dibatalkan';
@@ -185,6 +190,11 @@
                                             <i class="fas fa-phone"></i>
                                         </button>
                                     <?php endif; ?>
+                                    <?php if (!in_array($transaction['status'], ['cancel', 'cancelled'])): ?>
+                                    <a href="<?= site_url('admin/order/cancel/' . $transaction['order_id']) ?>" class="text-red-600 hover:text-red-900" title="Batalkan Transaksi" onclick="return confirm('Yakin ingin membatalkan transaksi ini?');">
+                                        <i class="fas fa-times-circle"></i>
+                                    </a>
+                                    <?php endif; ?>
                                 </div>
                             </td>
                         </tr>
@@ -209,7 +219,7 @@
             </div>
             <div class="flex space-x-2">
                 <?php if ($pager['current'] > 1): ?>
-                    <a href="?page=<?= $pager['current'] - 1 ?>&search=<?= urlencode($search) ?>&status=<?= urlencode($status) ?>" 
+                    <a href="?page=<?= $pager['current'] - 1 ?>&search=<?= urlencode($search) ?>&status=<?= urlencode($status) ?>&from=<?= urlencode($from ?? '') ?>&to=<?= urlencode($to ?? '') ?>" 
                        class="px-3 py-2 text-sm text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
                         Sebelumnya
                     </a>
@@ -220,7 +230,7 @@
                 </span>
                 
                 <?php if ($pager['current'] < $pager['total_pages']): ?>
-                    <a href="?page=<?= $pager['current'] + 1 ?>&search=<?= urlencode($search) ?>&status=<?= urlencode($status) ?>" 
+                    <a href="?page=<?= $pager['current'] + 1 ?>&search=<?= urlencode($search) ?>&status=<?= urlencode($status) ?>&from=<?= urlencode($from ?? '') ?>&to=<?= urlencode($to ?? '') ?>" 
                        class="px-3 py-2 text-sm text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
                         Selanjutnya
                     </a>
@@ -231,36 +241,3 @@
 </div>
 
 <?= $this->endSection() ?>
-<script>
-// Search functionality for transactions
-document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.querySelector('input[placeholder="Cari transaksi..."]');
-    const statusSelect = document.querySelector('select');
-    
-    if (searchInput) {
-        searchInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                performTransactionSearch();
-            }
-        });
-    }
-    
-    if (statusSelect) {
-        statusSelect.addEventListener('change', function() {
-            performTransactionSearch();
-        });
-    }
-});
-
-function performTransactionSearch() {
-    const search = document.querySelector('input[placeholder="Cari transaksi..."]').value;
-    const status = document.querySelector('select').value;
-    
-    let url = new URL(window.location);
-    url.searchParams.set('search', search);
-    url.searchParams.set('status', status);
-    url.searchParams.delete('page'); // Reset to first page
-    
-    window.location.href = url.toString();
-}
-</script>

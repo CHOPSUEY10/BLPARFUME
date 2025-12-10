@@ -34,4 +34,10 @@ class OrderModel extends Model
                     ->orderBy('tanggal_transaksi', 'DESC')
                     ->findAll();
     }
+
+    // Fungsi untuk update status pesanan
+    public function updateOrderStatus($orderId, $status)
+    {
+        return $this->update($orderId, ['status' => $status]);
+    }
 }

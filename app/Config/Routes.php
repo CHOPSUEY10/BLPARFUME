@@ -41,6 +41,7 @@ $routes->group('admin', ['filter' => 'admin'], function($routes) {
     $routes->get('dashboard','Dashboard::admin');
     $routes->get('order/view','Dashboard::adminpesanan');
     $routes->get('order/export','Dashboard::exportOrders');
+    $routes->get('order/cancel/(:num)','Dashboard::cancelOrder/$1');
     $routes->get('transaction/view','Dashboard::admintransaksi');
     $routes->get('transaction/export','Dashboard::exportTransactions');
     $routes->get('finance/view','Dashboard::adminkeuangan');

@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Controllers;
 
 use App\Models\AdminModel;
@@ -20,6 +19,32 @@ class Dashboard extends BaseController
         $this->productModel = new ProductModel();
         $this->orderModel = new OrderModel();
         $this->userModel = new UserModel();
+    }
+
+    // Endpoint untuk update status pesanan menjadi dibatalkan
+    public function cancelOrder($orderId)
+    {
+        if (session()->get('role') !== 'admin') {
+            return redirect()->to('/')->with('error', 'Akses ditolak!');
+        }
+        // Use AdminModel to update for consistency and log result
+        $order = $this->adminModel->getOrderDetails($orderId);
+        if (!$order) {
+            log_message('warning', "cancelOrder: order {$orderId} not found by user " . session()->get('email'));
+            return redirect()->to(site_url('admin/order/view'))->with('error', 'Pesanan tidak ditemukan');
+        }
+
+        // Use the DB value 'cancel' which exists in your database
+        $affected = $this->adminModel->updateOrderStatus($orderId, 'cancel');
+
+        if ($affected > 0) {
+            log_message('info', "cancelOrder: order {$orderId} cancelled by user " . session()->get('email') . ". Affected rows: {$affected}");
+            return redirect()->to(site_url('admin/order/view'))->with('success', 'Status pesanan berhasil diubah menjadi dibatalkan');
+        } else {
+            $dbError = $this->adminModel->db->error();
+            log_message('error', "cancelOrder: failed to cancel order {$orderId} by user " . session()->get('email') . ". DB error: " . json_encode($dbError));
+            return redirect()->to(site_url('admin/order/view'))->with('error', 'Gagal mengubah status pesanan');
+        }
     }
 
     public function index()
@@ -59,8 +84,18 @@ class Dashboard extends BaseController
         $stats = $this->adminModel->getDashboardStats();
         $recentOrders = $this->adminModel->getRecentOrders(5);
         $topProducts = $this->adminModel->getTopProducts(3);
-        $monthlySales = $this->adminModel->getMonthlySalesData();
-        
+
+        // Year for monthly sales chart (GET ?year=YYYY)
+        $year = $this->request->getGet('year') ?? date('Y');
+        $monthlySales = $this->adminModel->getMonthlySalesData($year);
+
+        // last 5 years for selector
+        $currentYear = (int) date('Y');
+        $yearOptions = [];
+        for ($i = 0; $i < 5; $i++) {
+            $yearOptions[] = $currentYear - $i;
+        }
+
         $data = [
             'title' => 'Dashboard Admin',
             'pageTitle' => 'Dashboard',
@@ -69,7 +104,9 @@ class Dashboard extends BaseController
             'stats' => $stats,
             'recent_orders' => $recentOrders,
             'top_products' => $topProducts,
-            'monthly_sales' => $monthlySales
+            'monthly_sales' => $monthlySales,
+            'year' => $year,
+            'year_options' => $yearOptions
         ];
         
         return view('admin/admindashboard', $data);
@@ -84,12 +121,14 @@ class Dashboard extends BaseController
         $search = $this->request->getGet('search') ?? '';
         $status = $this->request->getGet('status') ?? '';
         $page = $this->request->getGet('page') ?? 1;
+        $from = $this->request->getGet('from') ?? '';
+        $to = $this->request->getGet('to') ?? '';
         $limit = 10;
         $offset = ($page - 1) * $limit;
         
         // Get orders data
-        $orders = $this->adminModel->getAllOrders($limit, $offset, $search, $status);
-        $totalOrders = $this->adminModel->countOrders($search, $status);
+        $orders = $this->adminModel->getAllOrders($limit, $offset, $search, $status, $from, $to);
+        $totalOrders = $this->adminModel->countOrders($search, $status, $from, $to);
         $stats = $this->adminModel->getDashboardStats();
         
         $totalPages = ceil($totalOrders / $limit);
@@ -108,6 +147,8 @@ class Dashboard extends BaseController
             'stats' => $stats,
             'search' => $search,
             'status' => $status,
+            'from' => $from,
+            'to' => $to,
             'current_page' => $page,
             'pager' => $pager
         ];
@@ -123,9 +164,11 @@ class Dashboard extends BaseController
 
         $search = $this->request->getGet('search') ?? '';
         $status = $this->request->getGet('status') ?? '';
+        $from = $this->request->getGet('from') ?? '';
+        $to = $this->request->getGet('to') ?? '';
         
         // Limits 10000 for export
-        $orders = $this->adminModel->getAllOrders(10000, 0, $search, $status);
+        $orders = $this->adminModel->getAllOrders(10000, 0, $search, $status, $from, $to);
         
         header('Content-Type: text/csv');
         header('Content-Disposition: attachment; filename="export_pesanan_'.date('Y-m-d').'.csv"');
@@ -157,12 +200,14 @@ class Dashboard extends BaseController
         $search = $this->request->getGet('search') ?? '';
         $status = $this->request->getGet('status') ?? '';
         $page = $this->request->getGet('page') ?? 1;
+        $from = $this->request->getGet('from') ?? '';
+        $to = $this->request->getGet('to') ?? '';
         $limit = 10;
         $offset = ($page - 1) * $limit;
         
         // Get transactions data
-        $transactions = $this->adminModel->getAllTransactions($limit, $offset, $search, $status);
-        $totalTransactions = $this->adminModel->countTransactions($search, $status);
+        $transactions = $this->adminModel->getAllTransactions($limit, $offset, $search, $status, $from, $to);
+        $totalTransactions = $this->adminModel->countTransactions($search, $status, $from, $to);
         $stats = $this->adminModel->getDashboardStats();
         
         $totalPages = ceil($totalTransactions / $limit);
@@ -181,6 +226,8 @@ class Dashboard extends BaseController
             'stats' => $stats,
             'search' => $search,
             'status' => $status,
+            'from' => $from,
+            'to' => $to,
             'current_page' => $page,
             'pager' => $pager
         ];
@@ -196,8 +243,10 @@ class Dashboard extends BaseController
 
         $search = $this->request->getGet('search') ?? '';
         $status = $this->request->getGet('status') ?? '';
-        
-        $transactions = $this->adminModel->getAllTransactions(10000, 0, $search, $status);
+        $from = $this->request->getGet('from') ?? '';
+        $to = $this->request->getGet('to') ?? '';
+
+        $transactions = $this->adminModel->getAllTransactions(10000, 0, $search, $status, $from, $to);
         
         header('Content-Type: text/csv');
         header('Content-Disposition: attachment; filename="export_transaksi_'.date('Y-m-d').'.csv"');
@@ -268,9 +317,11 @@ class Dashboard extends BaseController
         $monthlyFinance = $this->adminModel->getFinancialSummary('month');
         $yearlyFinance = $this->adminModel->getFinancialSummary('year');
         $monthlySales = $this->adminModel->getMonthlySalesData();
+
+        // Additional DB-driven finance metrics and monthly breakdown
         $financialMetrics = $this->adminModel->getFinancialMetrics();
-        $monthlyBreakdown = $this->adminModel->getMonthlyBreakdown();
-        
+        $monthlyBreakdown = $this->adminModel->getMonthlyBreakdown(12);
+
         $data = [
             'title' => 'Laporan Keuangan',
             'pageTitle' => 'Keuangan',
@@ -445,6 +496,7 @@ class Dashboard extends BaseController
             'product_price' => 'required|numeric|greater_than[0]',
             'product_desc' => 'required|min_length[10]',
             'product_size' => 'required|max_length[50]',
+            'stock' => 'required|numeric|greater_than_equal_to[0]',
             'product_image' => 'permit_empty|uploaded[product_image]|max_size[product_image,2048]|is_image[product_image]|mime_in[product_image,image/jpg,image/jpeg,image/png,image/gif]'
         ];
 
@@ -465,7 +517,8 @@ class Dashboard extends BaseController
             'product_name' => $this->request->getPost('product_name'),
             'product_price' => $this->request->getPost('product_price'),
             'product_desc' => $this->request->getPost('product_desc'),
-            'product_size' => $this->request->getPost('product_size')
+            'product_size' => $this->request->getPost('product_size'),
+            'stock' => $this->request->getPost('stock')
         ];
 
         // Handle file upload
@@ -524,6 +577,7 @@ class Dashboard extends BaseController
             'product_price' => 'required|numeric|greater_than[0]',
             'product_desc' => 'required|min_length[10]',
             'product_size' => 'required|max_length[50]',
+            'stock' => 'required|numeric|greater_than_equal_to[0]',
             'product_image' => 'permit_empty|uploaded[product_image]|max_size[product_image,2048]|is_image[product_image]|mime_in[product_image,image/jpg,image/jpeg,image/png,image/gif]'
         ];
 
@@ -547,7 +601,8 @@ class Dashboard extends BaseController
             'product_name' => $this->request->getPost('product_name'),
             'product_price' => $this->request->getPost('product_price'),
             'product_desc' => $this->request->getPost('product_desc'),
-            'product_size' => $this->request->getPost('product_size')
+            'product_size' => $this->request->getPost('product_size'),
+            'stock' => $this->request->getPost('stock')
         ];
 
         // Handle file upload

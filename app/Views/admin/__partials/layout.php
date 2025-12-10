@@ -13,6 +13,15 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="<?= base_url('assets/js/admin.js') ?>"></script>
+    <script>
+        // Format number to Indonesian Rupiah string, e.g. Rp 1.234.567
+        function formatRupiah(value) {
+            if (value === null || value === undefined) return 'Rp 0';
+            var n = Number(value);
+            if (isNaN(n)) return 'Rp 0';
+            return 'Rp ' + n.toLocaleString('id-ID');
+        }
+    </script>
     
     <style>
         body { font-family: 'Poppins', sans-serif; }

@@ -74,9 +74,10 @@
     <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
         <div class="flex items-center justify-between mb-6">
             <h3 class="text-lg font-semibold text-gray-900">Penjualan Bulanan</h3>
-            <select class="text-sm border border-gray-300 rounded-lg px-3 py-1">
-                <option>2024</option>
-                <option>2023</option>
+            <select id="yearSelect" class="text-sm border border-gray-300 rounded-lg px-3 py-1">
+                <?php foreach (($year_options ?? []) as $opt): ?>
+                    <option value="<?= $opt ?>" <?= ((string)$opt === (string)($year ?? '')) ? 'selected' : '' ?>><?= $opt ?></option>
+                <?php endforeach; ?>
             </select>
         </div>
         <div style="height: 300px; position: relative;">
@@ -161,6 +162,14 @@
                                             $statusClass = 'bg-yellow-100 text-yellow-800';
                                             $statusText = 'Pending';
                                             break;
+                                        case 'cancel':
+                                            $statusClass = 'bg-red-100 text-red-800';
+                                            $statusText = 'Dibatalkan';
+                                            break;
+                                        case 'cancelled':
+                                            $statusClass = 'bg-red-100 text-red-800';
+                                            $statusText = 'Dibatalkan';
+                                            break;
                                         default:
                                             $statusClass = 'bg-blue-100 text-blue-800';
                                             $statusText = 'Baru';
@@ -203,11 +212,11 @@ const ctx = document.getElementById('salesChart').getContext('2d');
         $chartData[] = 0;
     }
     
-    // Fill with real data
+    // Fill with real data (full Rupiah values)
     if (!empty($monthly_sales)) {
         foreach ($monthly_sales as $sale) {
             $monthIndex = $sale['month'] - 1;
-            $chartData[$monthIndex] = round($sale['total_sales'] / 1000000, 1); // Convert to millions
+            $chartData[$monthIndex] = (int) $sale['total_sales'];
         }
     }
 ?>
@@ -216,7 +225,7 @@ new Chart(ctx, {
     data: {
         labels: <?= json_encode($chartLabels) ?>,
         datasets: [{
-            label: 'Penjualan (Juta Rupiah)',
+            label: 'Penjualan (Rp)',
             data: <?= json_encode($chartData) ?>,
             borderColor: 'rgb(59, 130, 246)',
             backgroundColor: 'rgba(59, 130, 246, 0.1)',
@@ -232,6 +241,12 @@ new Chart(ctx, {
             legend: {
                 display: false
             }
+            ,
+            tooltip: {
+                callbacks: {
+                    label: function(context) { return formatRupiah(context.parsed.y); }
+                }
+            }
         },
         scales: {
             y: {
@@ -239,6 +254,8 @@ new Chart(ctx, {
                 grid: {
                     color: 'rgba(0, 0, 0, 0.1)'
                 }
+                ,
+                ticks: { callback: function(value) { return formatRupiah(value); } }
             },
             x: {
                 grid: {
@@ -247,6 +264,13 @@ new Chart(ctx, {
             }
         }
     }
+});
+// Year selector behaviour: reload with selected year
+document.getElementById('yearSelect')?.addEventListener('change', function() {
+    const y = this.value;
+    const url = new URL(window.location);
+    url.searchParams.set('year', y);
+    window.location.href = url.toString();
 });
 </script>
 

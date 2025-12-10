@@ -10,7 +10,7 @@ class ProductModel extends Model
     protected $primaryKey       = 'id_product';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
-    protected $allowedFields    = ['product_name','product_price','product_desc','product_size','product_image'];
+    protected $allowedFields    = ['product_name','product_price','product_desc','product_size','product_image','stock'];
     
     // Mengambil semua produk
     public function getAllItems(){

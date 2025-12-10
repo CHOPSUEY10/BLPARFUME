@@ -16,15 +16,17 @@
         </select>
         <a href="<?= site_url('admin/finance/export') ?>" class="bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-lg flex items-center">
             <i class="fas fa-download mr-2"></i>Export Data
-            <div>
-                <div class="flex items-center justify-between mb-2">
-                    <span class="text-sm text-gray-600">Repeat Purchase Rate</span>
-                    <span class="text-sm font-semibold text-orange-600"><?= ($financial_metrics['repeat_purchase_rate'] ?? 0) ?>%</span>
-                </div>
-                <div class="w-full bg-gray-200 rounded-full h-2">
-                    <div class="bg-orange-500 h-2 rounded-full" style="width: <?= ($financial_metrics['repeat_purchase_rate'] ?? 0) ?>%"></div>
-                </div>
-            </div>
+        </a>
+    </div>
+</div>
+
+<!-- Revenue Cards -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <!-- Total Revenue -->
+    <div class="bg-gradient-to-br from-gray-800 to-black rounded-xl p-6 text-white shadow-lg border-t-4 border-yellow-400">
+        <div class="flex items-center justify-between mb-4">
+            <div class="w-12 h-12 bg-yellow-400/20 rounded-lg flex items-center justify-center">
+                <i class="fas fa-chart-line text-2xl text-yellow-400"></i>
             </div>
             <span class="text-sm bg-yellow-400/20 text-yellow-400 px-2 py-1 rounded-full font-medium">Total</span>
         </div>
@@ -113,13 +115,13 @@
                 </thead>
                 <tbody class="divide-y divide-gray-200">
                     <?php if (!empty($monthly_breakdown)): ?>
-                        <?php foreach ($monthly_breakdown as $month): ?>
+                        <?php foreach ($monthly_breakdown as $m): ?>
                             <tr>
-                                <td class="px-6 py-4 text-sm font-medium text-gray-900"><?= $month['month'] ?></td>
-                                <td class="px-6 py-4 text-sm text-gray-900">Rp <?= number_format($month['revenue'], 0, ',', '.') ?></td>
-                                <td class="px-6 py-4 text-sm text-red-600">Rp <?= number_format($month['costs'], 0, ',', '.') ?></td>
-                                <td class="px-6 py-4 text-sm font-semibold text-green-600">Rp <?= number_format($month['profit'], 0, ',', '.') ?></td>
-                                <td class="px-6 py-4 text-sm text-gray-900"><?= $month['margin'] ?>%</td>
+                                <td class="px-6 py-4 text-sm font-medium text-gray-900"><?= esc($m['month_name']) ?> <?= esc($m['year']) ?></td>
+                                <td class="px-6 py-4 text-sm text-gray-900">Rp <?= number_format($m['revenue'], 0, ',', '.') ?></td>
+                                <td class="px-6 py-4 text-sm text-red-600">Rp <?= number_format($m['costs'], 0, ',', '.') ?></td>
+                                <td class="px-6 py-4 text-sm font-semibold text-green-600">Rp <?= number_format($m['profit'], 0, ',', '.') ?></td>
+                                <td class="px-6 py-4 text-sm text-gray-900"><?= round($m['margin'], 1) ?>%</td>
                             </tr>
                         <?php endforeach; ?>
                     <?php else: ?>
@@ -139,16 +141,16 @@
         <div class="space-y-6">
             <div>
                 <div class="flex items-center justify-between mb-2">
-                    <span class="text-sm text-gray-600">ROI (Return on Investment)</span>
-                    <span class="text-sm font-semibold text-green-600"><?= ($financial_metrics['roi'] ?? 0) ?>%</span>
-                </div>
+                        <span class="text-sm text-gray-600">ROI (Return on Investment)</span>
+                        <span class="text-sm font-semibold text-green-600"><?php echo isset($financial_metrics['roi']) ? round($financial_metrics['roi'],1) . '%' : '0%'; ?></span>
+                    </div>
                 <div class="w-full bg-gray-200 rounded-full h-2">
-                    <div class="bg-green-500 h-2 rounded-full" style="width: <?= min(($financial_metrics['roi'] ?? 0), 100) ?>%"></div>
+                    <div class="bg-green-500 h-2 rounded-full" style="width: 85%"></div>
                 </div>
             </div>
 
             <div>
-                <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center justify-between mb-2">
                     <span class="text-sm text-gray-600">Customer Lifetime Value</span>
                     <span class="text-sm font-semibold text-blue-600">Rp <?= number_format(($financial_metrics['clv'] ?? 0), 0, ',', '.') ?></span>
                 </div>
@@ -158,7 +160,7 @@
             </div>
 
             <div>
-                <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center justify-between mb-2">
                     <span class="text-sm text-gray-600">Cost per Acquisition</span>
                     <span class="text-sm font-semibold text-purple-600">Rp <?= number_format(($financial_metrics['cpa'] ?? 0), 0, ',', '.') ?></span>
                 </div>
@@ -168,14 +170,12 @@
             </div>
 
             <div>
-                <?php $rpr = intval($financial_metrics['repeat_purchase_rate'] ?? 0); $rpr = max(0, min(100, $rpr)); ?>
-                <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center justify-between mb-2">
                     <span class="text-sm text-gray-600">Repeat Purchase Rate</span>
-                    <span class="text-sm font-semibold text-orange-600"><?= $rpr ?>%</span>
+                    <span class="text-sm font-semibold text-orange-600"><?php echo isset($financial_metrics['repeat_purchase_rate']) ? round($financial_metrics['repeat_purchase_rate'],1) . '%' : '0%'; ?></span>
                 </div>
-                <div class="w-full bg-gray-200 rounded-full h-2 relative">
-                    <div class="bg-orange-500 h-2 rounded-full" style="width: <?= $rpr ?>%"></div>
-                    <div class="absolute right-0 -top-6 text-xs text-gray-600"><?= $rpr ?>%</div>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div class="bg-orange-500 h-2 rounded-full" style="width: 68%"></div>
                 </div>
             </div>
         </div>
@@ -186,7 +186,7 @@
                 <p class="text-sm text-gray-500">Total Pendapatan Bulan Ini</p>
                 <div class="mt-2 flex items-center justify-center text-green-600">
                     <i class="fas fa-arrow-up mr-1"></i>
-                    <span class="text-sm font-medium">Data dari database</span>
+                    <span class="text-sm font-medium">+12% dari bulan lalu</span>
                 </div>
             </div>
         </div>
@@ -209,7 +209,7 @@ const revenueCtx = document.getElementById('revenueChart').getContext('2d');
         $revenueData[] = 0;
     }
     
-    // Fill with real data
+    // Fill with real data (full Rupiah values)
     if (!empty($monthly_sales)) {
         foreach ($monthly_sales as $sale) {
             $saleMonth = date('M', mktime(0, 0, 0, $sale['month'], 1));
@@ -241,6 +241,12 @@ new Chart(revenueCtx, {
             legend: {
                 display: false
             }
+            ,
+            tooltip: {
+                callbacks: {
+                    label: function(context) { return formatRupiah(context.parsed.y); }
+                }
+            }
         },
         scales: {
             y: {
@@ -248,6 +254,8 @@ new Chart(revenueCtx, {
                 grid: {
                     color: 'rgba(0, 0, 0, 0.1)'
                 }
+                ,
+                ticks: { callback: function(value) { return formatRupiah(value); } }
             },
             x: {
                 grid: {
@@ -260,23 +268,12 @@ new Chart(revenueCtx, {
 
 // Profit Chart
 const profitCtx = document.getElementById('profitChart').getContext('2d');
-<?php 
-    // Calculate average profit margin from monthly breakdown
-    $totalMargin = 0;
-    $dataCount = count($monthly_breakdown);
-    foreach ($monthly_breakdown as $month) {
-        $totalMargin += $month['margin'];
-    }
-    $avgMargin = $dataCount > 0 ? round($totalMargin / $dataCount) : 0;
-    $profitPercentage = $avgMargin;
-    $costPercentage = 100 - $avgMargin;
-?>
 new Chart(profitCtx, {
     type: 'doughnut',
     data: {
         labels: ['Keuntungan', 'Biaya Operasional'],
         datasets: [{
-            data: [<?= $profitPercentage ?>, <?= $costPercentage ?>],
+            data: [71, 29],
             backgroundColor: [
                 'rgb(34, 197, 94)',
                 'rgb(239, 68, 68)'

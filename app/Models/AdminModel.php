@@ -68,7 +68,7 @@ class AdminModel extends Model
     }
 
     // Get All Orders with pagination
-    public function getAllOrders($limit = 10, $offset = 0, $search = '', $status = '')
+    public function getAllOrders($limit = 10, $offset = 0, $search = '', $status = '', $from = '', $to = '')
     {
         $builder = $this->db->table('orders o')
             ->select('o.order_id, o.total_price, o.status, o.tanggal_transaksi, u.nama as customer_name, u.email as customer_email')
@@ -83,7 +83,20 @@ class AdminModel extends Model
         }
         
         if (!empty($status)) {
-            $builder->where('o.status', $status);
+            // Support both 'cancel' and 'cancelled' values in DB
+            if (in_array($status, ['cancel', 'cancelled'])) {
+                $builder->whereIn('o.status', ['cancel', 'cancelled']);
+            } else {
+                $builder->where('o.status', $status);
+            }
+        }
+
+        if (!empty($from)) {
+            $builder->where('DATE(o.tanggal_transaksi) >=', $from);
+        }
+
+        if (!empty($to)) {
+            $builder->where('DATE(o.tanggal_transaksi) <=', $to);
         }
         
         return $builder->orderBy('o.tanggal_transaksi', 'DESC')
@@ -92,7 +105,7 @@ class AdminModel extends Model
             ->getResultArray();
     }
 
-    public function countOrders($search = '', $status = '')
+    public function countOrders($search = '', $status = '', $from = '', $to = '')
     {
         $builder = $this->db->table('orders o')
             ->join('users u', 'u.id_user = o.user_id', 'left');
@@ -106,7 +119,19 @@ class AdminModel extends Model
         }
         
         if (!empty($status)) {
-            $builder->where('o.status', $status);
+            if (in_array($status, ['cancel', 'cancelled'])) {
+                $builder->whereIn('o.status', ['cancel', 'cancelled']);
+            } else {
+                $builder->where('o.status', $status);
+            }
+        }
+
+        if (!empty($from)) {
+            $builder->where('DATE(o.tanggal_transaksi) >=', $from);
+        }
+
+        if (!empty($to)) {
+            $builder->where('DATE(o.tanggal_transaksi) <=', $to);
         }
         
         return $builder->countAllResults();
@@ -149,7 +174,7 @@ class AdminModel extends Model
     }
 
     // Get All Transactions
-    public function getAllTransactions($limit = 10, $offset = 0, $search = '', $status = '')
+    public function getAllTransactions($limit = 10, $offset = 0, $search = '', $status = '', $from = '', $to = '')
     {
         $builder = $this->db->table('orders o')
             ->select('o.order_id, o.total_price, o.status, o.tanggal_transaksi, u.nama as customer_name, u.email as customer_email')
@@ -164,7 +189,19 @@ class AdminModel extends Model
         }
         
         if (!empty($status)) {
-            $builder->where('o.status', $status);
+            if (in_array($status, ['cancel', 'cancelled'])) {
+                $builder->whereIn('o.status', ['cancel', 'cancelled']);
+            } else {
+                $builder->where('o.status', $status);
+            }
+        }
+
+        if (!empty($from)) {
+            $builder->where('DATE(o.tanggal_transaksi) >=', $from);
+        }
+
+        if (!empty($to)) {
+            $builder->where('DATE(o.tanggal_transaksi) <=', $to);
         }
         
         return $builder->orderBy('o.tanggal_transaksi', 'DESC')
@@ -218,9 +255,13 @@ class AdminModel extends Model
     // Update Order Status
     public function updateOrderStatus($orderId, $status)
     {
-        return $this->db->table('orders')
+        $builder = $this->db->table('orders')
             ->where('order_id', $orderId)
             ->update(['status' => $status]);
+
+        // Return number of affected rows for diagnostics
+        $affected = $this->db->affectedRows();
+        return $affected;
     }
 
     // Get Order Details
@@ -234,102 +275,94 @@ class AdminModel extends Model
             ->getRowArray();
     }
 
-    public function countTransactions($search = '', $status = '')
+    public function countTransactions($search = '', $status = '', $from = '', $to = '')
     {
         // Reusing countOrders logic since transactions view uses the same table
-        return $this->countOrders($search, $status);
+        return $this->countOrders($search, $status, $from, $to);
     }
 
-    // Get Financial Metrics (ROI, CLV, CPA, Repeat Purchase Rate)
+    // Get key financial metrics (uses simple assumptions where needed)
     public function getFinancialMetrics()
     {
         $metrics = [];
-        
-        // Total Revenue All Time
-        $totalRevenueQuery = $this->db->table('orders')
-            ->selectSum('total_price')
-            ->where('status', 'paid')
-            ->get();
-        $totalRevenue = $totalRevenueQuery->getRow()->total_price ?? 0;
-        
-        // Total Paid Orders (all time)
-        $totalPaidOrders = $this->db->table('orders')
-            ->where('status', 'paid')
-            ->countAllResults();
-        
-        // Calculate average cost per order (assuming 30% of revenue as costs)
-        $costPerOrder = $totalRevenue > 0 ? ($totalRevenue * 0.30) / $totalPaidOrders : 0;
-        
-        // ROI - Return on Investment (assuming 30% initial investment)
-        $initialInvestment = $totalRevenue * 0.30;
-        $profit = $totalRevenue - $initialInvestment;
-        $metrics['roi'] = $initialInvestment > 0 ? round(($profit / $initialInvestment) * 100) : 0;
-        
-        // CLV - Customer Lifetime Value
-        $totalUniqueCustomers = $this->db->table('orders')
-            ->distinct()
-            ->where('status', 'paid')
-            ->countAllResults();
-        $metrics['clv'] = $totalUniqueCustomers > 0 ? round($totalRevenue / $totalUniqueCustomers) : 0;
-        
-        // CPA - Cost per Acquisition (assuming Rp 125K marketing cost per new customer)
-        $metrics['cpa'] = 125000; // Fixed assumed value, can be updated based on actual marketing spend table
-        
+
+        // Total revenue (paid)
+        $rev = $this->db->query("SELECT SUM(total_price) as total_revenue FROM orders WHERE status = 'paid'");
+        $metrics['total_revenue'] = $rev->getRow()->total_revenue ?? 0;
+
+        // Total unique customers (who made paid orders)
+        $cust = $this->db->query("SELECT COUNT(DISTINCT user_id) as unique_customers FROM orders WHERE status = 'paid'");
+        $metrics['unique_customers'] = $cust->getRow()->unique_customers ?? 0;
+
+        // CLV (approx avg revenue per customer)
+        if ($metrics['unique_customers'] > 0) {
+            $metrics['clv'] = $metrics['total_revenue'] / $metrics['unique_customers'];
+        } else {
+            $metrics['clv'] = 0;
+        }
+
+        // CPA placeholder
+        $metrics['cpa'] = 125000;
+
         // Repeat Purchase Rate
-        $repeatCustomersQuery = $this->db->query("
-            SELECT COUNT(DISTINCT user_id) as repeat_customers
-            FROM orders
-            WHERE user_id IN (
-                SELECT user_id FROM orders 
-                WHERE status = 'paid'
-                GROUP BY user_id 
-                HAVING COUNT(*) > 1
-            ) AND status = 'paid'
-        ");
-        $repeatCustomers = $repeatCustomersQuery->getRow()->repeat_customers ?? 0;
-        $metrics['repeat_purchase_rate'] = $totalUniqueCustomers > 0 ? round(($repeatCustomers / $totalUniqueCustomers) * 100) : 0;
-        
+        $rprQuery = $this->db->query("SELECT
+                SUM(case when cnt > 1 then 1 else 0 end) as repeat_customers,
+                SUM(1) as total_customers
+            FROM (
+                SELECT user_id, COUNT(*) as cnt FROM orders WHERE status = 'paid' GROUP BY user_id
+            ) t");
+        $rprRow = $rprQuery->getRow();
+        $repeat = $rprRow->repeat_customers ?? 0;
+        $totalCust = $rprRow->total_customers ?? 0;
+        $metrics['repeat_purchase_rate'] = $totalCust > 0 ? ($repeat / $totalCust) * 100 : 0;
+
+        // ROI assuming cost is 30% of revenue
+        $assumed_cost = $metrics['total_revenue'] * 0.3;
+        if ($assumed_cost > 0) {
+            $metrics['roi'] = (($metrics['total_revenue'] - $assumed_cost) / $assumed_cost) * 100;
+        } else {
+            $metrics['roi'] = 0;
+        }
+
         return $metrics;
     }
 
-    // Get Monthly Financial Breakdown (last 12 months)
-    public function getMonthlyBreakdown()
+    // Get monthly breakdown for last N months (only months with paid orders)
+    public function getMonthlyBreakdown($months = 12)
     {
-        $breakdown = [];
-        
-        // Get last 12 months of data
-        for ($i = 11; $i >= 0; $i--) {
-            $date = strtotime("-$i months");
-            $month = date('Y-m', $date);
-            $monthName = date('F Y', $date);
-            
-            // Revenue for the month
-            $revenueQuery = $this->db->table('orders')
-                ->selectSum('total_price')
-                ->where('status', 'paid')
-                ->where('YEAR(tanggal_transaksi)', date('Y', $date))
-                ->where('MONTH(tanggal_transaksi)', date('m', $date))
-                ->get();
-            $revenue = $revenueQuery->getRow()->total_price ?? 0;
-            
-            // Calculate costs (assuming 30% of revenue)
-            $costs = $revenue * 0.30;
-            
-            // Calculate profit
+        $query = $this->db->query("SELECT
+                YEAR(tanggal_transaksi) as yr,
+                MONTH(tanggal_transaksi) as mth,
+                DATE_FORMAT(tanggal_transaksi, '%Y-%m') as ym,
+                MONTHNAME(tanggal_transaksi) as month_name,
+                SUM(total_price) as revenue,
+                COUNT(*) as orders
+            FROM orders
+            WHERE status = 'paid' AND tanggal_transaksi >= (DATE_SUB(LAST_DAY(CURDATE()), INTERVAL ? MONTH) + INTERVAL 1 DAY)
+            GROUP BY YEAR(tanggal_transaksi), MONTH(tanggal_transaksi)
+            ORDER BY YEAR(tanggal_transaksi), MONTH(tanggal_transaksi)", [$months]);
+
+        $rows = $query->getResultArray();
+        $result = [];
+        foreach ($rows as $r) {
+            $revenue = (float) $r['revenue'];
+            $costs = $revenue * 0.3; // assumed costs
             $profit = $revenue - $costs;
-            
-            // Calculate margin percentage
-            $margin = $revenue > 0 ? round(($profit / $revenue) * 100) : 0;
-            
-            $breakdown[] = [
-                'month' => $monthName,
-                'revenue' => $revenue,
-                'costs' => $costs,
-                'profit' => $profit,
-                'margin' => $margin
+            $margin = $revenue > 0 ? ($profit / $revenue) * 100 : 0;
+
+            $result[] = [
+                'year' => $r['yr'],
+                'month' => $r['mth'],
+                'ym' => $r['ym'],
+                'month_name' => $r['month_name'],
+                'revenue' => (float) $revenue,
+                'orders' => (int) $r['orders'],
+                'costs' => (float) $costs,
+                'profit' => (float) $profit,
+                'margin' => (float) $margin
             ];
         }
-        
-        return $breakdown;
+
+        return $result;
     }
 }
