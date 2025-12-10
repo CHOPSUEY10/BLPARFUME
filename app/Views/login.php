@@ -11,7 +11,7 @@
             <div class="mb-8 text-center">
                 <p class="text-sm uppercase tracking-[0.3em] text-gray-400">Selamat Datang Kembali</p>
                 <h1 class="text-3xl font-semibold text-gray-900">Masuk ke BL Parfume</h1>
-                <p class="text-gray-500 mt-2">Masuk untuk melanjutkan pengalaman belanja parfum eksklusif Anda.</p>
+                <p class="text-gray-500 mt-2">Login satu pintu untuk Customer dan Admin. Sistem akan mengarahkan Anda ke halaman yang sesuai.</p>
             </div>
 
             <?php if (session()->getFlashdata('error')) : ?>

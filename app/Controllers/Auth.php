@@ -43,12 +43,18 @@ class Auth extends Controller
                         $sessionData = [
                             'user_id'   => $user['id_user'],
                             'email'     => $user['email'],
+                            'role'      => $user['role'] ?? 'user',
                             'logged_in' => true,
                         ];
                         
                         session()->set($sessionData);
                         
-                        return redirect()->to('tentang')->with('success','Berhasil login');
+                        // Redirect berdasarkan role
+                        if ($user['role'] === 'admin') {
+                            return redirect()->to('admin/dashboard')->with('success','Selamat datang Admin!');
+                        } else {
+                            return redirect()->to('tentang')->with('success','Berhasil login');
+                        }
 
                     }
                     
@@ -178,6 +184,7 @@ class Auth extends Controller
                         $sessionData = [
                             'user_id'   => $encodedIdentity,
                             'email'      => $email,
+                            'role'       => 'user', // Default role untuk register
                             'logged_in'  => true,
                         ];
                         

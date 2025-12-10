@@ -43,30 +43,48 @@
         <div class="bg-white rounded-3xl shadow-xl p-8">
             <p class="text-sm uppercase tracking-[0.4em] text-gray-500 mb-4">Formulir</p>
             <h2 class="text-2xl font-semibold text-gray-900 mb-6">Kirim Pertanyaan</h2>
-            <form class="space-y-5">
+            <!-- Flash Messages -->
+            <?php if (session()->getFlashdata('success')) : ?>
+                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-xl mb-6">
+                    <?= session()->getFlashdata('success') ?>
+                </div>
+            <?php endif ?>
+            
+            <?php if (session()->getFlashdata('errors')) : ?>
+                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl mb-6">
+                    <ul class="list-disc list-inside">
+                    <?php foreach (session()->getFlashdata('errors') as $error) : ?>
+                        <li><?= esc($error) ?></li>
+                    <?php endforeach ?>
+                    </ul>
+                </div>
+            <?php endif ?>
+
+            <form action="<?= base_url('kontak') ?>" method="post" class="space-y-5">
+                <?= csrf_field() ?>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1" for="nama">Nama Lengkap</label>
-                    <input id="nama" type="text" placeholder="Mis. Bintang Lestari"
+                    <input id="nama" name="nama" type="text" placeholder="Mis. Bintang Lestari" value="<?= old('nama') ?>"
                         class="w-full rounded-2xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-gray-800">
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1" for="email">Email</label>
-                        <input id="email" type="email" placeholder="nama@email.com"
+                        <input id="email" name="email" type="email" placeholder="nama@email.com" value="<?= old('email') ?>"
                             class="w-full rounded-2xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-gray-800">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1" for="telepon">No. Telepon</label>
-                        <input id="telepon" type="tel" placeholder="08xx xxxx xxxx"
+                        <input id="telepon" name="telepon" type="tel" placeholder="08xx xxxx xxxx" value="<?= old('telepon') ?>"
                             class="w-full rounded-2xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-gray-800">
                     </div>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1" for="pesan">Pesan</label>
-                    <textarea id="pesan" rows="4" placeholder="Tulis kebutuhan atau pertanyaan Anda"
-                        class="w-full rounded-2xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-gray-800"></textarea>
+                    <textarea id="pesan" name="pesan" rows="4" placeholder="Tulis kebutuhan atau pertanyaan Anda"
+                        class="w-full rounded-2xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-gray-800"><?= old('pesan') ?></textarea>
                 </div>
-                <button type="button"
+                <button type="submit"
                     class="w-full bg-gray-900 text-white py-3 rounded-full font-semibold tracking-wide hover:bg-gray-800 transition">
                     Kirim Sekarang
                 </button>

@@ -67,4 +67,32 @@ class Home extends BaseController
     public function kontak(){
         return view('kontak');
     }
+
+    public function sendContact()
+    {
+        // Validasi input
+        if (!$this->validate([
+            'nama' => 'required|min_length[3]',
+            'email' => 'required|valid_email',
+            'pesan' => 'required|min_length[10]'
+        ])) {
+            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+        }
+
+        // Simpan pesan ke database
+        $messageModel = new \App\Models\MessageModel();
+        
+        $data = [
+            'name' => $this->request->getPost('nama'),
+            'email' => $this->request->getPost('email'),
+            'phone' => $this->request->getPost('telepon'),
+            'message' => $this->request->getPost('pesan')
+        ];
+        
+        if ($messageModel->save($data)) {
+            return redirect()->to('kontak')->with('success', 'Pesan Anda berhasil dikirim! Tim kami akan segera merespons.');
+        } else {
+            return redirect()->back()->withInput()->with('error', 'Gagal mengirim pesan. Silakan coba lagi.');
+        }
+    }
 }

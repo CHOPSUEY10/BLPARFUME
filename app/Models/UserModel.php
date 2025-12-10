@@ -9,7 +9,7 @@ class UserModel extends Model
     protected $table            = 'users';
     protected $primaryKey       = 'id_user';
     protected $returnType       = 'array';
-    protected $allowedFields    = ['id_user', 'nama', 'alamat', 'email','no_telp','password'];
+    protected $allowedFields    = ['id_user', 'nama', 'alamat', 'email','no_telp','password', 'role'];
     protected $useTimestamps    = true;
     protected $createdField     = 'created_at';
     protected $updatedField     = 'updated_at';
@@ -43,6 +43,7 @@ class UserModel extends Model
             'no_telp' => $newdata['phone'],
             'email' => $newdata['email'],
             'password' => $newdata['password'],
+            'role' => $newdata['role'] ?? 'user',
         ];
 
         try{
@@ -55,7 +56,7 @@ class UserModel extends Model
 
     public function updateUserData($id,$data){
 
-        if(empty($newdata)){
+        if(empty($data)){
             return false;
         }
 
@@ -65,9 +66,25 @@ class UserModel extends Model
             log_message('Error','Error Message :'.$e);
             return false;
         }
+    }
 
+    public function isAdmin($userId){
+        try{
+            $user = $this->find($userId);
+            return $user && $user['role'] === 'admin';
+        }catch(\Exception $e){
+            log_message('error','Error checking admin role: '.$e->getMessage());
+            return false;
+        }
+    }
 
-
-
+    public function getUserRole($userId){
+        try{
+            $user = $this->find($userId);
+            return $user ? $user['role'] : null;
+        }catch(\Exception $e){
+            log_message('error','Error getting user role: '.$e->getMessage());
+            return null;
+        }
     }
 }

@@ -21,6 +21,7 @@ $routes->get('belanja', 'Home::shop');
 $routes->get('keranjang', 'Home::keranjang');
 $routes->get('tentang', 'Home::tentang');
 $routes->get('kontak', 'Home::kontak');
+$routes->post('kontak', 'Home::sendContact');
 
 // API Routes 
 $routes->group('basket/api', function($routes) {
@@ -35,40 +36,29 @@ $routes->group('basket/api', function($routes) {
 
 
 
-// Admin routes untuk autentikasi 
-$routes->group('admin', function($routes) {
-    
-    $routes->post('login','Api\AdminAuth::login');
-    $routes->get('login','Dashboard::adminlogin');
-    
-    $routes->post('register','Api\AdminAuth::register');
-    $routes->get('register','Dashboard::adminregister');
-    
-    $routes->get('logout','Api\AdminAuth::logout'); 
-
-
-    
-    
+// Admin Routes dengan filter admin
+$routes->group('admin', ['filter' => 'admin'], function($routes) {
     $routes->get('dashboard','Dashboard::admin');
     $routes->get('order/view','Dashboard::adminpesanan');
     $routes->get('transaction/view','Dashboard::admintransaksi');
     $routes->get('finance/view','Dashboard::adminkeuangan');
+    $routes->get('message/view','Dashboard::adminpesan');
+    $routes->post('message/delete/(:num)', 'Dashboard::deleteMessage/$1');
     $routes->get('product/view','Dashboard::adminproduk');
     
+    // Product CRUD Routes
+    $routes->get('product/create','Dashboard::createProduct');
+    $routes->post('product/store','Dashboard::storeProduct');
+    $routes->get('product/edit/(:num)','Dashboard::editProduct/$1');
+    $routes->post('product/update/(:num)','Dashboard::updateProduct/$1');
+    $routes->post('product/delete/(:num)','Dashboard::deleteProduct/$1');
+    $routes->delete('product/delete/(:num)','Dashboard::deleteProduct/$1');
     
-});
-
-// $routes->get('admin','Home::admin');
-// Admin Routes dengan filter JWT
-$routes->group('admin', ['filter' => 'jwt'], function($routes) {
-    
-    $routes->get('/','Api\Dashboard::admin');
-    $routes->get('order','Api\Dashboard::adminpesanan');
-    $routes->get('transaction','Api\Dashboard::admintransaksi');
-    $routes->get('finance','Api\Dashboard::adminkeuangan');
-    $routes->get('product','Api\Dashboard::adminproduk');
-
-    
+    // API Routes for admin
+    $routes->post('api/order/update-status','Dashboard::updateOrderStatus');
+    $routes->post('api/order/create','Dashboard::createOrder');
+    $routes->get('api/order/details/(:num)','Dashboard::getOrderDetails/$1');
+    $routes->get('api/product/(:num)','Dashboard::getProductDetails/$1');
 });
 
 
