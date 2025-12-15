@@ -60,7 +60,7 @@
                                 </button>
 
                                 <div class="w-20 h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 border border-gray-200">
-                                    <img src="<?= base_url('assets/images/parfume-' . $imgNum . '.jpg') ?>" 
+                                    <img src="<?= base_url('uploads/products/' . esc($item['product_image'])) ?>"  
                                          alt="<?= esc($item['product_name']) ?>" 
                                          class="w-full h-full object-cover">
                                 </div>

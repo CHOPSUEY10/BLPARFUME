@@ -59,7 +59,7 @@ class Home extends BaseController
                 // Create a `sizes` array that holds arrays with id and size
                 $item['sizes'] = [];
                 if ($id !== null && $size !== null) {
-                    $item['sizes'][] = ['id' => $id, 'size' => $size];
+                    $item['sizes'][] = ['id' => $id, 'size' => $size, 'price' => $p['product_price'] ?? null];
                 }
                 $grouped[$key] = $item;
             } else {
@@ -73,7 +73,7 @@ class Home extends BaseController
                         }
                     }
                     if (! $exists) {
-                        $grouped[$key]['sizes'][] = ['id' => $id, 'size' => $size];
+                        $grouped[$key]['sizes'][] = ['id' => $id, 'size' => $size, 'price' => $p['product_price'] ?? null];
                     }
                 }
             }
@@ -93,6 +93,7 @@ class Home extends BaseController
         $basketModel = new BasketModel();
         $summary = $basketModel->getBasketSummary($userId);
         
+
         $data['summary'] = $summary;
         return view('keranjang', $data);
     }

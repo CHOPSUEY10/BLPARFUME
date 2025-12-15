@@ -30,8 +30,8 @@
                                 <?php if (!empty($product['sizes']) && is_array($product['sizes'])): ?>
                                     <label for="size-select-<?= $index ?>" class="sr-only">Pilih ukuran</label>
                                     <select id="size-select-<?= $index ?>" class="select-size block w-full text-xs text-gray-700 bg-white border rounded px-2 py-1 mb-2">
-                                        <?php foreach ($product['sizes'] as $s): ?>
-                                            <option value="<?= esc($s['id']) ?>"><?= esc($s['size']) ?></option>
+                                        <?php foreach ($product['sizes'] as $i => $s): ?>
+                                            <option value="<?= esc($s['id']) ?>" data-price="<?= esc($s['price']) ?>" <?= $i === 0 ? 'selected' : '' ?>><?= esc($s['size']) ?></option>
                                         <?php endforeach; ?>
                                     </select>
                                 <?php else: ?>
@@ -39,7 +39,7 @@
                                     <p class="text-xs text-gray-500 uppercase tracking-wide"><?= esc($sizeDisplay) ?></p>
                                 <?php endif; ?>
                             </div>
-                            <span class="text-lg font-bold text-gray-900">
+                            <span class="text-lg font-bold text-gray-900 price-display" data-default-price="<?= esc($product['product_price']) ?>">
                                 Rp.<?= number_format($product['product_price'], 0, ',', '.') ?>
                             </span>
                         </div>
@@ -72,6 +72,26 @@
         // 1. Definisikan Token sebagai variabel GLOBAL dan MUTABLE (let)
         const csrfName = '<?= csrf_token() ?>';
         let csrfHash   = '<?= csrf_hash() ?>'; // Token awal
+
+        // Also wire up price updates when size changes and ensure add-buttons pick selected size id
+        document.querySelectorAll('.select-size').forEach(select => {
+            const card = select.closest('.p-6');
+            const priceEl = card ? card.querySelector('.price-display') : null;
+            const updatePrice = (opt) => {
+                if (!priceEl) return;
+                const price = opt ? Number(opt.dataset.price) : Number(priceEl.dataset.defaultPrice || 0);
+                // Format price to Indonesian Rupiah
+                const fmt = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 });
+                priceEl.textContent = fmt.format(price);
+            };
+
+            // Initialize price based on selected option
+            updatePrice(select.options[select.selectedIndex]);
+
+            select.addEventListener('change', function() {
+                updatePrice(this.options[this.selectedIndex]);
+            });
+        });
 
         addButtons.forEach(button => {
             button.addEventListener('click', async function(e) {

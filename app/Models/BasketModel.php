@@ -23,10 +23,10 @@ class BasketModel extends Model
 
     public function getBasketSummary($userId)
     {
-        $items = $this->select('baskets.product_id, products.product_name, products.product_price, products.product_size, COUNT(baskets.product_id) as quantity')
+        $items = $this->select('baskets.product_id, products.product_name, products.product_price, products.product_image, products.product_size, COUNT(baskets.product_id) as quantity')
                       ->join('products', 'products.id_product = baskets.product_id')
                       ->where('baskets.user_id', $userId)
-                      ->groupBy('baskets.product_id, products.product_name, products.product_price, products.product_size')
+                      ->groupBy('baskets.product_id, products.product_name, products.product_price, products.product_size, products.product_image')
                       ->findAll();
 
         $grandTotal = 0;
