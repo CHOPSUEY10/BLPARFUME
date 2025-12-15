@@ -95,7 +95,7 @@ class Auth extends Controller
 
         $method = $this->request->getMethod(true);
         if(!$method){
-            return $this->response()->setStatusCode(400)->setMessage('Bad Request');
+            return $this->response->setStatusCode(400,'Bad Request');
         }
 
         switch($method){
@@ -195,7 +195,7 @@ class Auth extends Controller
                                 ->with('success', 'Registrasi berhasil! Selamat datang, ' . $name);
 
 
-                }catch(Exception $e){
+                }catch(\Exception $e){
                     return redirect()->back()->with('error', 'Gagal mendaftar. Silakan coba lagi.');
                 }
             break;

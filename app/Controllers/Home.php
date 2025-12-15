@@ -7,6 +7,7 @@ use App\Models\ProductModel;
 use App\Models\BasketModel;
 
 class Home extends BaseController
+
 {
     public function index()
     {  
@@ -25,7 +26,61 @@ class Home extends BaseController
     public function shop()
     {
         $productModel = new ProductModel();
-        $data['products'] = $productModel->getAllItems();
+        $products = $productModel->getAllItems();
+
+        // Group products by normalized name and collect sizes with their product IDs
+        $grouped = [];
+        foreach ($products as $p) {
+            $rawName = $p['product_name'] ?? $p['name'] ?? null;
+            if($p['stock'] === 0){
+                $productModel->removeProduct($p['id_product']);
+            }
+            
+            if ($rawName === null) {
+                continue;
+            }
+
+            // Normalize name to avoid differences like trailing spaces or case
+            $key = trim($rawName);
+            if (function_exists('mb_strtolower')) {
+                $key = mb_strtolower($key);
+            } else {
+                $key = strtolower($key);
+            }
+            if ($key === '') continue;
+
+            $id   = $p['id_product'] ?? null;
+            $size = $p['product_size'] ?? null;
+
+            if (!isset($grouped[$key])) {
+                $item = $p;
+                // Keep the canonical product_name as original casing
+                $item['product_name'] = $rawName;
+                // Create a `sizes` array that holds arrays with id and size
+                $item['sizes'] = [];
+                if ($id !== null && $size !== null) {
+                    $item['sizes'][] = ['id' => $id, 'size' => $size];
+                }
+                $grouped[$key] = $item;
+            } else {
+                if ($id !== null && $size !== null) {
+                    // avoid duplicates by id
+                    $exists = false;
+                    foreach ($grouped[$key]['sizes'] as $s) {
+                        if (isset($s['id']) && $s['id'] == $id) {
+                            $exists = true;
+                            break;
+                        }
+                    }
+                    if (! $exists) {
+                        $grouped[$key]['sizes'][] = ['id' => $id, 'size' => $size];
+                    }
+                }
+            }
+        }
+
+        $data['products'] = array_values($grouped);
+
         return view('shop', $data);
     }
 

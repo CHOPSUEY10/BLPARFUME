@@ -27,7 +27,17 @@
                         <div class="flex justify-between items-start mb-2">
                             <div>
                                 <h3 class="text-lg font-semibold text-gray-800"><?= esc($product['product_name']) ?></h3>
-                                <p class="text-xs text-gray-500 uppercase tracking-wide"><?= esc($product['product_size']) ?></p>
+                                <?php if (!empty($product['sizes']) && is_array($product['sizes'])): ?>
+                                    <label for="size-select-<?= $index ?>" class="sr-only">Pilih ukuran</label>
+                                    <select id="size-select-<?= $index ?>" class="select-size block w-full text-xs text-gray-700 bg-white border rounded px-2 py-1 mb-2">
+                                        <?php foreach ($product['sizes'] as $s): ?>
+                                            <option value="<?= esc($s['id']) ?>"><?= esc($s['size']) ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                <?php else: ?>
+                                    <?php $sizeDisplay = is_array($product['product_size']) ? implode(', ', $product['product_size']) : $product['product_size']; ?>
+                                    <p class="text-xs text-gray-500 uppercase tracking-wide"><?= esc($sizeDisplay) ?></p>
+                                <?php endif; ?>
                             </div>
                             <span class="text-lg font-bold text-gray-900">
                                 Rp.<?= number_format($product['product_price'], 0, ',', '.') ?>
@@ -40,7 +50,7 @@
                         
                         <button 
                             class="w-full mt-2 bg-black text-white py-2 rounded-md hover:bg-gray-800 transition-colors btn-add-cart"
-                            data-product-id="<?= $product['id_product'] ?>">
+                            data-product-default-id="<?= $product['id_product'] ?>">
                             <i class="fas fa-shopping-cart mr-2"></i> Add to Cart
                         </button>
                     </div>
@@ -66,8 +76,11 @@
         addButtons.forEach(button => {
             button.addEventListener('click', async function(e) {
                 e.preventDefault();
-                
-                const productId = this.getAttribute('data-product-id');
+
+                // Try to find a size select within the same card; if present use its value (product id for that size)
+                const card = this.closest('.p-6');
+                const select = card ? card.querySelector('.select-size') : null;
+                const productId = select ? select.value : this.getAttribute('data-product-default-id');
 
                 // Loading state
                 const originalText = this.innerHTML;
