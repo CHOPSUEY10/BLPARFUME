@@ -70,7 +70,7 @@ Additionally, make sure that the following extensions are enabled in your PHP:
 
 
 
-# Konfigurasi Server Windows
+# Konfigurasi Virtual Host (Windows)
 
 ## Buka httpd-vhost.conf tambahkan ini
  
