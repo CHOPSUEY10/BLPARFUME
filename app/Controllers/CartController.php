@@ -148,7 +148,7 @@ class CartController extends BaseController
         foreach($summary['items'] as  $item ){
             $productId = $item['product_id'];
             $qty = $item['quantity'];
-            $stock = $productStock['$productId'] ?? 0;
+            $stock = $productStock[$productId] ?? 0;
             
             if ($stock < $qty) {
                 return $this->response->setJSON([

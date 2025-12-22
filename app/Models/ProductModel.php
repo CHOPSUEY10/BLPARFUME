@@ -42,29 +42,27 @@ class ProductModel extends Model
         return $builder->countAllResults();
     }
 
-    protected function getStockProduct(array $ids)
-    {
-        if (empty($ids)) {
-            return [];
-        }
+   
 
-        try {
-            return $this->select('id_product AS product_id, stock')
-                ->whereIn('id_product', $ids)
-                ->get()
-                ->getResultArray();
-
-        } catch (\Exception $e) {
-            log_message('error', 'getStockProduct Error: ' . $e->getMessage());
-            return [];
-        }
+    public function getStockProductMap(array $ids): array
+{
+    if (empty($ids)) {
+        return [];
     }
 
-    public function getStockProductMap(array $ids)
-    {
-        $rows = $this->getStockProduct($ids);
-        return array_column($rows, 'stock', 'product_id');
+    $rows = $this->select('id_product, stock')
+        ->whereIn('id_product', $ids)
+        ->get()
+        ->getResultArray();
+
+    $map = [];
+    foreach ($rows as $row) {
+        $map[(int)$row['id_product']] = (int)$row['stock'];
     }
+
+    return $map;
+}
+
 
     
     // Mengambil satu produk berdasarkan ID
