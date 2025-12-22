@@ -23,6 +23,19 @@ function viewOrder(orderId) {
     .then(data => {
         if (data.success) {
             const order = data.data;
+            const itemsHtml = (order.items && order.items.length > 0) ? order.items.map(item => `
+                    <div class="border rounded p-2 mb-2">
+                        <p class="font-semibold">${item.product_name}</p>
+                        <p class="text-sm">
+                            Harga: Rp ${Number(item.product_price).toLocaleString('id-ID')}
+                        </p>
+                        <p class="text-sm">Size: ${item.product_size}</p>
+                        <p class="text-sm">Qty: ${item.quantity}</p>
+                        
+                    </div>
+                `).join('')
+                : `<p class="text-gray-500 text-sm">Tidak ada produk</p>`;
+
             Swal.fire({
                 title: `Detail Pesanan #ORD-${String(order.order_id).padStart(3, '0')}`,
                 html: `
@@ -35,21 +48,29 @@ function viewOrder(orderId) {
                             </div>
                             <div>
                                 <strong>Total:</strong><br>
-                                <span class="text-lg font-bold text-green-600">Rp ${new Intl.NumberFormat('id-ID').format(order.total_price)}</span>
+                                <span class="text-lg font-bold text-green-600">
+                                    Rp ${Number(order.total_price).toLocaleString('id-ID')}
+                                </span>
                             </div>
                         </div>
+
                         <div>
                             <strong>Alamat:</strong><br>
                             ${order.customer_address || 'Tidak ada alamat'}
                         </div>
+
                         <div>
                             <strong>Telepon:</strong><br>
                             ${order.customer_phone || 'Tidak ada nomor telepon'}
                         </div>
+
                         <div>
                             <strong>Status:</strong><br>
-                            <span class="px-2 py-1 rounded-full text-xs ${getStatusClass(order.status)}">${getStatusText(order.status)}</span>
+                            <span class="px-2 py-1 rounded-full text-xs ${getStatusClass(order.status)}">
+                                ${getStatusText(order.status)}
+                            </span>
                         </div>
+
                         <div>
                             <strong>Tanggal:</strong><br>
                             ${new Date(order.tanggal_transaksi).toLocaleDateString('id-ID', {
@@ -60,8 +81,16 @@ function viewOrder(orderId) {
                                 minute: '2-digit'
                             })}
                         </div>
+
+                        <div>
+                            <strong>Produk:</strong>
+                            <div class="mt-2">
+                                ${itemsHtml}
+                            </div>
+                        </div>
                     </div>
                 `,
+
                 width: 600,
                 showCancelButton: true,
                 confirmButtonText: 'Update Status',
@@ -69,7 +98,7 @@ function viewOrder(orderId) {
                 confirmButtonColor: '#3B82F6'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    updateStatus(orderId);
+                    updateStatus(orderId,order.items);
                 }
             });
         } else {
@@ -83,7 +112,7 @@ function viewOrder(orderId) {
 }
 
 // Update Order Status
-function updateStatus(orderId) {
+function updateStatus(orderId,items) {
     Swal.fire({
         title: 'Update Status Pesanan',
         input: 'select',
@@ -108,6 +137,7 @@ function updateStatus(orderId) {
             const formData = new FormData();
             formData.append('order_id', orderId);
             formData.append('status', result.value);
+            formData.append('items',JSON.stringify(items));
             formData.append('csrf_test_name', csrfToken);
             
             fetch('/admin/api/order/update-status', {

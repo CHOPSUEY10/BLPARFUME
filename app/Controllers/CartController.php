@@ -4,6 +4,9 @@ namespace App\Controllers;
 
 use App\Models\BasketModel;
 use App\Models\OrderModel;
+use App\Models\OrderItemModel;
+use App\Models\ProductModel;
+
 
 class CartController extends BaseController 
 {
@@ -133,8 +136,29 @@ class CartController extends BaseController
             ]);
         }
 
+        
         // 2. Simpan ke Tabel Orders
         $orderModel = new OrderModel();
+        $orderItemModel = new OrderItemModel();
+        $productModel = new ProductModel();
+
+        $productIds = array_column($summary['items'], 'product_id');
+
+        $productStock = $productModel->getStockProductMap($productIds);
+        foreach($summary['items'] as  $item ){
+            $productId = $item['product_id'];
+            $qty = $item['quantity'];
+            $stock = $productStock['$productId'] ?? 0;
+            
+            if ($stock < $qty) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Stok produk tidak mencukupi',
+                    'product_id' => $productId,
+                    'token'   => csrf_hash()
+                ]);
+            }
+        }
         
         $orderId = $orderModel->insert([
             'user_id'     => $userId,
@@ -142,10 +166,14 @@ class CartController extends BaseController
             'status'      => 'pending'
         ]);
 
+       
+
         if ($orderId) {
             // 3. KOSONGKAN KERANJANG (INI BAGIAN UTAMANYA)
+            foreach($summary['items'] as $items){
+                $orderItemModel->createOrder($orderId,$items);
+            }
             $basketModel->clearBasket($userId); 
-
             return $this->response->setJSON([
                 'success' => true,
                 'message' => 'Pesanan dibuat',

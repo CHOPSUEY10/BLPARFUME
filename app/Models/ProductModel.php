@@ -41,6 +41,31 @@ class ProductModel extends Model
         }
         return $builder->countAllResults();
     }
+
+    protected function getStockProduct(array $ids)
+    {
+        if (empty($ids)) {
+            return [];
+        }
+
+        try {
+            return $this->select('id_product AS product_id, stock')
+                ->whereIn('id_product', $ids)
+                ->get()
+                ->getResultArray();
+
+        } catch (\Exception $e) {
+            log_message('error', 'getStockProduct Error: ' . $e->getMessage());
+            return [];
+        }
+    }
+
+    public function getStockProductMap(array $ids)
+    {
+        $rows = $this->getStockProduct($ids);
+        return array_column($rows, 'stock', 'product_id');
+    }
+
     
     // Mengambil satu produk berdasarkan ID
     public function getItemById($id){     
@@ -93,5 +118,14 @@ class ProductModel extends Model
             log_message('error', 'Query failure : '. $e->getMessage());
             return false;
         }
+    }
+
+    public function reduceStock($productId, $qty)
+    {
+        return $this->builder()
+            ->set('stock', 'stock - ' . (int)$qty, false)
+            ->where('id_product', $productId)
+            ->where('stock >=', (int)$qty) // anti minus
+            ->update();
     }
 }

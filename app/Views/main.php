@@ -11,6 +11,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@2.8.2/dist/alpine.js" defer></script>
+    <link rel="icon" href="<?= base_url('assets/images/favicon.png') ?>" type="image/png">
+
+
     
     <style>
         body { font-family: 'Poppins', sans-serif; }
@@ -23,7 +26,7 @@
             <div class="flex justify-between h-20">
                 <div class="flex items-center">
                      <a href="<?= site_url('/') ?>">
-                        <img src="<?= base_url('assets/images/logo.png') ?>" alt="BL Parfume" class="h-12 w-auto">
+                        <img src="<?= base_url('assets/images/logo.png') ?>" alt="BL Parfume" height="150" width="150">
                      </a>
                 </div>
                 
@@ -147,11 +150,10 @@
             <div class="col-span-1 md:col-span-1">
                 <h3 class="text-2xl font-bold mb-6 tracking-wider">BL PARFUME</h3>
                 <p class="text-gray-400 text-sm leading-relaxed mb-6">
-                    Menghadirkan aroma kemewahan yang terjangkau. Dirracik dengan bahan premium untuk menemani setiap momen spesial Anda.
+                    Menghadirkan aroma kemewahan yang terjangkau. Diracik dengan bahan premium untuk menemani setiap momen spesial Anda.
                 </p>
                 <div class="flex space-x-4">
                     <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center text-gray-400 hover:bg-white hover:text-gray-900 transition"><i class="fab fa-instagram"></i></a>
-                    <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center text-gray-400 hover:bg-white hover:text-gray-900 transition"><i class="fab fa-facebook-f"></i></a>
                     <a href="https://wa.me/6283148796357" target="_blank" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center text-gray-400 hover:bg-green-500 hover:text-white transition"><i class="fab fa-whatsapp"></i></a>
                 </div>
             </div>
@@ -171,7 +173,6 @@
                 <ul class="space-y-3 text-gray-400 text-sm">
                     <li><a href="<?= site_url('kontak') ?>" class="hover:text-white transition">Hubungi Kami</a></li>
                     <li><a href="#" class="hover:text-white transition">Cara Pemesanan</a></li>
-                    <li><a href="#" class="hover:text-white transition">Pengiriman</a></li>
                     <li><a href="#" class="hover:text-white transition">Kebijakan Privasi</a></li>
                 </ul>
             </div>

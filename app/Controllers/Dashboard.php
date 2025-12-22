@@ -4,6 +4,7 @@ namespace App\Controllers;
 use App\Models\AdminModel;
 use App\Models\ProductModel;
 use App\Models\OrderModel;
+use App\Models\OrderItemModel;
 use App\Models\UserModel;
 
 class Dashboard extends BaseController
@@ -11,6 +12,7 @@ class Dashboard extends BaseController
     protected $adminModel;
     protected $productModel;
     protected $orderModel;
+    protected $orderItemModel;
     protected $userModel;
 
     public function __construct()
@@ -18,6 +20,7 @@ class Dashboard extends BaseController
         $this->adminModel = new AdminModel();
         $this->productModel = new ProductModel();
         $this->orderModel = new OrderModel();
+        $this->orderItemModel = new OrderItemModel();
         $this->userModel = new UserModel();
     }
 
@@ -127,7 +130,7 @@ class Dashboard extends BaseController
         $offset = ($page - 1) * $limit;
         
         // Get orders data
-        $orders = $this->adminModel->getAllOrders($limit, $offset, $search, $status, $from, $to);
+        $orders = $this->adminModel->getOrders($limit, $offset, $search, $status, $from, $to);
         $totalOrders = $this->adminModel->countOrders($search, $status, $from, $to);
         $stats = $this->adminModel->getDashboardStats();
         
@@ -447,7 +450,27 @@ class Dashboard extends BaseController
         
         $orderId = $this->request->getPost('order_id');
         $status = $this->request->getPost('status');
-        
+        if ($status === 'paid') {
+
+          
+
+            $items = $this->orderItemModel->getItemsByOrderId($orderId);
+
+            foreach ($items as $item) {
+                
+
+
+                $this->productModel->reduceStock(
+                    $item['product_id'],
+                    $item['quantity']
+                );
+
+            }
+
+           
+        }    
+    
+    
         if ($this->adminModel->updateOrderStatus($orderId, $status)) {
             return $this->response->setJSON(['success' => true, 'message' => 'Status berhasil diupdate']);
         } else {

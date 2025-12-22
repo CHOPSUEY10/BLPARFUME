@@ -67,12 +67,75 @@ class AdminModel extends Model
             ->getResultArray();
     }
 
+      // Get All Orders with pagination
+    public function getOrders($limit = 10, $offset = 0, $search = '', $status = '', $from = '', $to = '')
+    {
+        $builder = $this->db->table('orders o')
+        ->select('
+            o.order_id,
+            o.total_price,
+            o.status,
+            o.tanggal_transaksi,
+
+            u.nama  AS customer_name,
+            u.email AS customer_email,
+
+        ')
+        ->join('users u', 'u.id_user = o.user_id', 'left')
+        ->where('o.status','pending')->orWhere('o.status','cancel');
+        
+
+        
+        if (!empty($search)) {
+            $builder->groupStart()
+                ->like('u.nama', $search)
+                ->orLike('u.email', $search)
+                ->orLike('o.order_id', $search)
+                ->groupEnd();
+        }
+        
+        if (!empty($status)) {
+            // Support both 'cancel' and 'cancelled' values in DB
+            if (in_array($status, ['cancel', 'cancelled'])) {
+                $builder->whereIn('o.status', ['cancel', 'cancelled']);
+            } else {
+                $builder->where('o.status', $status);
+            }
+        }
+
+        if (!empty($from)) {
+            $builder->where('DATE(o.tanggal_transaksi) >=', $from);
+        }
+
+        if (!empty($to)) {
+            $builder->where('DATE(o.tanggal_transaksi) <=', $to);
+        }
+        
+        return $builder->orderBy('o.tanggal_transaksi', 'DESC')
+            ->limit($limit, $offset)
+            ->get()
+            ->getResultArray();
+    }
+
+
     // Get All Orders with pagination
     public function getAllOrders($limit = 10, $offset = 0, $search = '', $status = '', $from = '', $to = '')
     {
         $builder = $this->db->table('orders o')
-            ->select('o.order_id, o.total_price, o.status, o.tanggal_transaksi, u.nama as customer_name, u.email as customer_email')
-            ->join('users u', 'u.id_user = o.user_id', 'left');
+        ->select('
+            o.order_id,
+            o.total_price,
+            o.status,
+            o.tanggal_transaksi,
+
+            u.nama  AS customer_name,
+            u.email AS customer_email,
+
+        ')
+        ->join('users u', 'u.id_user = o.user_id', 'left');
+       
+        
+
         
         if (!empty($search)) {
             $builder->groupStart()
@@ -174,41 +237,44 @@ class AdminModel extends Model
     }
 
     // Get All Transactions
-    public function getAllTransactions($limit = 10, $offset = 0, $search = '', $status = '', $from = '', $to = '')
-    {
+     public function getAllTransactions($limit = 10, $offset = 0, $search = '', $status = '', $from = '', $to = ''){
         $builder = $this->db->table('orders o')
-            ->select('o.order_id, o.total_price, o.status, o.tanggal_transaksi, u.nama as customer_name, u.email as customer_email')
+            ->select('
+                o.order_id,
+                o.total_price,
+                o.status,
+                o.tanggal_transaksi,
+                u.nama  AS customer_name,
+                u.email AS customer_email
+            ')
             ->join('users u', 'u.id_user = o.user_id', 'left');
-        
-        if (!empty($search)) {
+
+        if ($search) {
             $builder->groupStart()
                 ->like('u.nama', $search)
                 ->orLike('u.email', $search)
                 ->orLike('o.order_id', $search)
                 ->groupEnd();
         }
-        
-        if (!empty($status)) {
-            if (in_array($status, ['cancel', 'cancelled'])) {
-                $builder->whereIn('o.status', ['cancel', 'cancelled']);
-            } else {
-                $builder->where('o.status', $status);
-            }
+
+        if ($status) {
+            in_array($status, ['cancel', 'cancelled'])
+                ? $builder->whereIn('o.status', ['cancel', 'cancelled'])
+                : $builder->where('o.status', $status);
         }
 
-        if (!empty($from)) {
-            $builder->where('DATE(o.tanggal_transaksi) >=', $from);
-        }
+        if ($from) $builder->where('DATE(o.tanggal_transaksi) >=', $from);
+        if ($to)   $builder->where('DATE(o.tanggal_transaksi) <=', $to);
 
-        if (!empty($to)) {
-            $builder->where('DATE(o.tanggal_transaksi) <=', $to);
-        }
-        
-        return $builder->orderBy('o.tanggal_transaksi', 'DESC')
+        return $builder
+            ->orderBy('o.tanggal_transaksi', 'DESC')
             ->limit($limit, $offset)
             ->get()
             ->getResultArray();
-    }
+        }
+
+
+
 
     // Get Financial Summary
     public function getFinancialSummary($period = 'month')
@@ -267,12 +333,42 @@ class AdminModel extends Model
     // Get Order Details
     public function getOrderDetails($orderId)
     {
-        return $this->db->table('orders o')
-            ->select('o.*, u.nama as customer_name, u.email as customer_email, u.alamat as customer_address, u.no_telp as customer_phone')
+        // 1️⃣ Ambil data order (header)
+        $order = $this->db->table('orders o')
+            ->select('
+                o.*,
+                u.nama   AS customer_name,
+                u.email  AS customer_email,
+                u.alamat AS customer_address,
+                u.no_telp AS customer_phone
+            ')
             ->join('users u', 'u.id_user = o.user_id', 'left')
             ->where('o.order_id', $orderId)
             ->get()
             ->getRowArray();
+
+        if (!$order) {
+            return null;
+        }
+
+        // 2️⃣ Ambil item produk dalam order
+        $items = $this->db->table('order_items oi')
+            ->select('
+
+                oi.product_name,
+                oi.product_price,
+                oi.quantity,
+                oi.product_size,
+                oi.product_id
+            ')
+            ->where('oi.order_id', $orderId)
+            ->get()
+            ->getResultArray();
+
+        // 3️⃣ Gabungkan
+        $order['items'] = $items;
+
+        return $order;
     }
 
     public function countTransactions($search = '', $status = '', $from = '', $to = '')
