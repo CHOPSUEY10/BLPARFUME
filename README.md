@@ -70,9 +70,9 @@ Additionally, make sure that the following extensions are enabled in your PHP:
 
 
 
-> Konfigurasi Server Windows
+# Konfigurasi Virtual Host (Windows)
 
-a. Buka httpd-vhost.conf tambahkan ini
+## Buka httpd-vhost.conf tambahkan ini
  
 <VirtualHost *:80>
     ServerName blparfume.com
@@ -86,7 +86,7 @@ a. Buka httpd-vhost.conf tambahkan ini
 </VirtualHost>
 
 
-b. Buka C:\Windows\System32\drivers\etc\hosts (Administrator mode), tambahkan
+## Buka C:\Windows\System32\drivers\etc\hosts (Administrator mode), tambahkan
 
 127.0.0.1 blparfume.com
 
