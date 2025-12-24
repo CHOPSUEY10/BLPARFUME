@@ -279,7 +279,7 @@ class AdminModel extends Model
     // Get Financial Summary
     public function getFinancialSummary($period = 'month')
     {
-        $summary = [];
+        $summary = [];  
         
         switch ($period) {
             case 'month':

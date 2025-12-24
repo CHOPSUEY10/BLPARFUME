@@ -9,7 +9,7 @@
     </div>
     <div class="flex space-x-3">
         <a href="<?= site_url('admin/transaction/export') ?>?search=<?= urlencode($search) ?>&status=<?= urlencode($status) ?>&from=<?= urlencode($from ?? '') ?>&to=<?= urlencode($to ?? '') ?>" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors inline-flex items-center">
-            <i class="fas fa-download mr-2"></i>Export Excel
+            <i class="fas fa-download mr-2"></i>Export PDF
         </a>
         <button class="bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-lg">
             <i class="fas fa-chart-line mr-2"></i>Laporan

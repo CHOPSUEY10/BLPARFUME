@@ -6,6 +6,7 @@ use App\Models\ProductModel;
 use App\Models\OrderModel;
 use App\Models\OrderItemModel;
 use App\Models\UserModel;
+use App\Libraries\PdfGenerator;
 
 class Dashboard extends BaseController
 {
@@ -77,7 +78,121 @@ class Dashboard extends BaseController
         return view('dashboard', $data);
     }
 
-    public function admin(){
+   
+
+    protected function reportOrderTemplate($title)
+    {
+        try {
+            $data['orders'] = $this->orderModel->getOrderData();
+            $data['title'] = $title;
+
+            // ⬇️ view dijadikan STRING
+            $html = view('admin/laporan/laporanpesanan', $data);
+
+            // sekarang $html bisa dipakai untuk:
+            // - PDF
+            // - Email
+            // - disimpan ke file
+            return $html;
+
+        } catch (\Exception $e) {
+            log_message('error', 'Error Message: ' . $e->getMessage());
+            return '';
+        }
+    }
+
+    protected function reportTransactionTemplate($title,$month){
+        try{
+            $data['title'] = $title;
+            $data['transactions'] = $this->orderModel->getPaidOrderData($month);
+            $data['metode'] = 'online'; 
+            $html = view('admin/laporan/laporantransaksi',$data);
+            return $html;
+        }catch(\Exception $e){
+            log_message('error', 'Error Message: ' . $e->getMessage());
+            return '';
+        }
+    }
+
+    protected function reportFinanceTemplate(string $title,  $monthFinance,  $yearFinance,  $monthlySales){
+        try{
+
+            $data['summary_title'] = 'SUMMARY KEUANGAN';
+            $data['monthly_title'] = 'RINCIAN BULANAN';
+        
+            $monthFinance['periode'] = 'Bulan ini ';
+            $yearFinance['periode'] = 'Tahun ini ';
+            $data['finance'] = [$monthFinance , $yearFinance];
+
+            $data['monthly_sales'] = $monthlySales;
+            $data['title'] = $title;
+            $html = view('admin/laporan/laporankeuangan', $data);
+            return $html;
+
+
+        }catch(\Exception $e){
+            log_message('error', 'Error Message: ' . $e->getMessage());
+            return '';
+        }
+    }
+
+
+    public function exportOrders()
+    {
+        if (session()->get('role') !== 'admin') {
+            return redirect()->to('/')->with('error', 'Akses ditolak!');
+        }
+
+        $pdfgenerator = new PdfGenerator();
+
+        $title = "Laporan_Pemesanan_".date("Y-m-d");
+        $template = $this->reportOrderTemplate($title);
+        $paper = "A4";
+        $orientation = "potrait";
+
+        $pdfgenerator->generate($template,$title,$paper,$orientation);
+    }
+
+    public function exportTransactions()
+    {
+        if (session()->get('role') !== 'admin') {
+            return redirect()->to('/')->with('error', 'Akses ditolak!');
+        }
+
+        $pdfgenerator = new PdfGenerator();
+
+        $title = "Laporan_Transaksi_".date("Y-m-d");
+        $month = date('m');
+        $template = $this->reportTransactionTemplate($title,$month);
+        $paper = "A4";
+        $orientation = "potrait";
+
+        $pdfgenerator->generate($template,$title,$paper,$orientation);
+    }
+
+    public function exportFinance()
+    {
+        if (session()->get('role') !== 'admin') {
+            return redirect()->to('/')->with('error', 'Akses ditolak!');
+        }
+        
+        // Download Monthly Finance Report
+        $monthlyFinance = $this->adminModel->getFinancialSummary('month');
+        $yearlyFinance = $this->adminModel->getFinancialSummary('year');
+        $monthlySales = $this->adminModel->getMonthlySalesData();
+        
+        $pdfgenerator = new PdfGenerator();
+
+        $title = "Laporan_Keuangan_".date("Y-m-d");
+        $template = $this->reportFinanceTemplate($title,$monthlyFinance,$yearlyFinance,$monthlySales);
+        $paper = "A4";
+        $orientation = "potrait";
+
+        $pdfgenerator->generate($template,$title,$paper,$orientation);
+        
+    }
+
+     public function admin(){
         // Validasi tambahan (meskipun sudah ada filter)
         if (session()->get('role') !== 'admin') {
             return redirect()->to('/')->with('error', 'Akses ditolak!');
@@ -159,41 +274,6 @@ class Dashboard extends BaseController
         return view('admin/adminpesanan', $data);
     }
 
-    public function exportOrders()
-    {
-        if (session()->get('role') !== 'admin') {
-            return redirect()->to('/')->with('error', 'Akses ditolak!');
-        }
-
-        $search = $this->request->getGet('search') ?? '';
-        $status = $this->request->getGet('status') ?? '';
-        $from = $this->request->getGet('from') ?? '';
-        $to = $this->request->getGet('to') ?? '';
-        
-        // Limits 10000 for export
-        $orders = $this->adminModel->getAllOrders(10000, 0, $search, $status, $from, $to);
-        
-        header('Content-Type: text/csv');
-        header('Content-Disposition: attachment; filename="export_pesanan_'.date('Y-m-d').'.csv"');
-        
-        $fp = fopen('php://output', 'w');
-        fputcsv($fp, ['Order ID', 'Customer', 'Email', 'Total', 'Status', 'Tanggal']);
-        
-        foreach ($orders as $order) {
-            fputcsv($fp, [
-                $order['order_id'],
-                $order['customer_name'],
-                $order['customer_email'],
-                $order['total_price'],
-                $order['status'],
-                $order['tanggal_transaksi']
-            ]);
-        }
-        
-        fclose($fp);
-        exit;
-    }
-        
     public function admintransaksi(){
         if (session()->get('role') !== 'admin') {
             return redirect()->to('/')->with('error', 'Akses ditolak!');
@@ -236,79 +316,6 @@ class Dashboard extends BaseController
         ];
         
         return view('admin/admintransaksi', $data);
-    }
-
-    public function exportTransactions()
-    {
-        if (session()->get('role') !== 'admin') {
-            return redirect()->to('/')->with('error', 'Akses ditolak!');
-        }
-
-        $search = $this->request->getGet('search') ?? '';
-        $status = $this->request->getGet('status') ?? '';
-        $from = $this->request->getGet('from') ?? '';
-        $to = $this->request->getGet('to') ?? '';
-
-        $transactions = $this->adminModel->getAllTransactions(10000, 0, $search, $status, $from, $to);
-        
-        header('Content-Type: text/csv');
-        header('Content-Disposition: attachment; filename="export_transaksi_'.date('Y-m-d').'.csv"');
-        
-        $fp = fopen('php://output', 'w');
-        fputcsv($fp, ['ID Transaksi', 'Customer', 'Email', 'Metode', 'Nominal', 'Status', 'Tanggal']);
-        
-        foreach ($transactions as $t) {
-            fputcsv($fp, [
-                $t['order_id'],
-                $t['customer_name'],
-                $t['customer_email'],
-                'Online', // Hardcoded as per view
-                $t['total_price'],
-                $t['status'],
-                $t['tanggal_transaksi']
-            ]);
-        }
-        
-        fclose($fp);
-        exit;
-    }
-
-    public function exportFinance()
-    {
-        if (session()->get('role') !== 'admin') {
-            return redirect()->to('/')->with('error', 'Akses ditolak!');
-        }
-        
-        // Download Monthly Finance Report
-        $monthlyFinance = $this->adminModel->getFinancialSummary('month');
-        $yearlyFinance = $this->adminModel->getFinancialSummary('year');
-        $monthlySales = $this->adminModel->getMonthlySalesData();
-        
-        header('Content-Type: text/csv');
-        header('Content-Disposition: attachment; filename="laporan_keuangan_'.date('Y-m-d').'.csv"');
-        
-        $fp = fopen('php://output', 'w');
-        
-        // Summary Section
-        fputcsv($fp, ['SUMMARY KEUANGAN']);
-        fputcsv($fp, ['Periode', 'Total Revenue', 'Total Orders', 'Avg Order Value']);
-        fputcsv($fp, ['Bulan Ini', $monthlyFinance['total_revenue'], $monthlyFinance['total_orders'], $monthlyFinance['average_order']]);
-        fputcsv($fp, ['Tahun Ini', $yearlyFinance['total_revenue'], $yearlyFinance['total_orders'], $yearlyFinance['average_order']]);
-        fputcsv($fp, []);
-        
-        // Details Section
-        fputcsv($fp, ['RINCIAN BULANAN']);
-        fputcsv($fp, ['Bulan', 'Total Penjualan', 'Jumlah Order']);
-        foreach ($monthlySales as $sale) {
-            fputcsv($fp, [
-                $sale['month_name'],
-                $sale['total_sales'],
-                $sale['total_orders']
-            ]);
-        }
-        
-        fclose($fp);
-        exit;
     }
     
     public function adminkeuangan(){
@@ -374,8 +381,7 @@ class Dashboard extends BaseController
         return view('admin/adminproduk', $data);
     }
 
-    public function exportProducts()
-    {
+    public function exportProducts(){
         if (session()->get('role') !== 'admin') {
             return redirect()->to('/')->with('error', 'Akses ditolak!');
         }
@@ -405,8 +411,7 @@ class Dashboard extends BaseController
     }
 
     // Message Management
-    public function adminpesan()
-    {
+    public function adminpesan(){
         if (session()->get('role') !== 'admin') {
             return redirect()->to('/')->with('error', 'Akses ditolak!');
         }
@@ -422,8 +427,7 @@ class Dashboard extends BaseController
         return view('admin/adminpesan', $data);
     }
 
-    public function deleteMessage($id)
-    {
+    public function deleteMessage($id){
         if (!$this->request->isAJAX()) {
             return $this->response->setJSON(['success' => false, 'message' => 'Invalid request']);
         }
@@ -442,8 +446,7 @@ class Dashboard extends BaseController
     }
 
     // API Methods for AJAX calls
-    public function updateOrderStatus()
-    {
+    public function updateOrderStatus(){
         if (!$this->request->isAJAX()) {
             return $this->response->setJSON(['success' => false, 'message' => 'Invalid request']);
         }
@@ -478,8 +481,7 @@ class Dashboard extends BaseController
         }
     }
 
-    public function getOrderDetails($orderId)
-    {
+    public function getOrderDetails($orderId){
         if (!$this->request->isAJAX()) {
             return $this->response->setJSON(['success' => false, 'message' => 'Invalid request']);
         }
@@ -494,8 +496,7 @@ class Dashboard extends BaseController
     }
 
     // Product CRUD Methods
-    public function createProduct()
-    {
+    public function createProduct(){
         if (session()->get('role') !== 'admin') {
             return redirect()->to('/')->with('error', 'Akses ditolak!');
         }
@@ -508,8 +509,7 @@ class Dashboard extends BaseController
         return view('admin/product_create', $data);
     }
 
-    public function storeProduct()
-    {
+    public function storeProduct(){
         if (session()->get('role') !== 'admin') {
             return redirect()->to('/')->with('error', 'Akses ditolak!');
         }
@@ -568,8 +568,7 @@ class Dashboard extends BaseController
         }
     }
 
-    public function editProduct($productId)
-    {
+    public function editProduct($productId){
         if (session()->get('role') !== 'admin') {
             return redirect()->to('/')->with('error', 'Akses ditolak!');
         }
@@ -589,8 +588,7 @@ class Dashboard extends BaseController
         return view('admin/product_edit', $data);
     }
 
-    public function updateProduct($productId)
-    {
+    public function updateProduct($productId){
         if (session()->get('role') !== 'admin') {
             return redirect()->to('/')->with('error', 'Akses ditolak!');
         }
@@ -661,8 +659,7 @@ class Dashboard extends BaseController
         }
     }
 
-    public function deleteProduct($productId)
-    {
+    public function deleteProduct($productId){
         // Set response type to JSON
         $this->response->setContentType('application/json');
         
@@ -702,8 +699,7 @@ class Dashboard extends BaseController
         }
     }
 
-    public function getProductDetails($productId)
-    {
+    public function getProductDetails($productId){
         if (!$this->request->isAJAX()) {
             return $this->response->setJSON(['success' => false, 'message' => 'Invalid request']);
         }
@@ -717,8 +713,7 @@ class Dashboard extends BaseController
         }
     }
 
-    public function createOrder()
-    {
+    public function createOrder(){
         if (!$this->request->isAJAX()) {
             return $this->response->setJSON(['success' => false, 'message' => 'Invalid request']);
         }
